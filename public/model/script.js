@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    contextHelperText.textContent = `${filtered.length} context${filtered.length === 1 ? "" : "s"} found`;
+    contextHelperText.textContent = "Select one or more contexts to get started";
 
     if (!filtered.length) {
       contextList.innerHTML = `
