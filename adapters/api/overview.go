@@ -131,8 +131,8 @@ func WorkloadsOverviewHandler(c *gin.Context) {
 			Danger:  deploymentStats.Pending,
 			Status:  statusFromCounts(deploymentStats.Pending, deploymentStats.Warning),
 		},
-		ReplicaSets:    simpleOverviewMetric(len(replicaSets.Items), readyReplicaSets(replicaSets.Items), pendingReplicaSets(replicaSets.Items), len(replicaSets.Items)-readyReplicaSets(replicaSets.Items)-pendingReplicaSets(replicaSets.Items)),
-		DaemonSets:     simpleOverviewMetric(len(daemonSets.Items), readyDaemonSets(daemonSets.Items), pendingDaemonSets(daemonSets.Items), len(daemonSets.Items)-readyDaemonSets(daemonSets.Items)-pendingDaemonSets(daemonSets.Items)),
+		ReplicaSets:    simpleOverviewMetric(len(replicaSets.Items), readyReplicaSets(replicaSets.Items), pendingReplicaSets(replicaSets.Items), issueReplicaSets(replicaSets.Items)),
+		DaemonSets:     simpleOverviewMetric(len(daemonSets.Items), readyDaemonSets(daemonSets.Items), pendingDaemonSets(daemonSets.Items), issueDaemonSets(daemonSets.Items)),
 		StatefulSets:   simpleOverviewMetric(len(statefulSets.Items), readyStatefulSets(statefulSets.Items), updatingStatefulSets(statefulSets.Items), len(statefulSets.Items)-readyStatefulSets(statefulSets.Items)-updatingStatefulSets(statefulSets.Items)),
 		CronJobs:       simpleOverviewMetric(len(cronJobs.Items), len(cronJobs.Items), 0, 0),
 		Jobs:           simpleOverviewMetric(len(jobs.Items), successfulJobs(jobs.Items), activeJobs(jobs.Items), failedJobs(jobs.Items)),
@@ -408,6 +408,17 @@ func pendingReplicaSets(items []appsv1.ReplicaSet) int {
 	return count
 }
 
+func issueReplicaSets(items []appsv1.ReplicaSet) int {
+	count := 0
+	for _, item := range items {
+		desired := desiredReplicas(item.Spec.Replicas)
+		if desired > 0 && item.Status.Replicas > 0 && item.Status.ReadyReplicas < desired {
+			count++
+		}
+	}
+	return count
+}
+
 func readyDaemonSets(items []appsv1.DaemonSet) int {
 	count := 0
 	for _, item := range items {
@@ -422,6 +433,16 @@ func pendingDaemonSets(items []appsv1.DaemonSet) int {
 	count := 0
 	for _, item := range items {
 		if item.Status.DesiredNumberScheduled > 0 && item.Status.NumberReady == 0 {
+			count++
+		}
+	}
+	return count
+}
+
+func issueDaemonSets(items []appsv1.DaemonSet) int {
+	count := 0
+	for _, item := range items {
+		if item.Status.DesiredNumberScheduled > 0 && item.Status.NumberReady > 0 && item.Status.NumberReady < item.Status.DesiredNumberScheduled {
 			count++
 		}
 	}
