@@ -1,5 +1,7 @@
 # NetKube
 
+Create a `.env` file before starting the app. NetKube requires `EMAIL` (or legacy `USERNAME`), `PASSWORD`, and optionally `SESSION_SECRET` for login.
+
 ## Run with Docker
 
 ```bash

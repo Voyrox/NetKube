@@ -6,14 +6,13 @@
 	padding: 24px;
 }
 
-.signup-box,
-.login-box {
+.login-shell {
 	width: min(100%, 440px);
 	border: 1px solid var(--panel-border);
 	background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
 	background-color: var(--panel-background);
-	border-radius: 14px;
-	padding: 28px;
+	border-radius: 18px;
+	padding: 32px;
 	box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
 }
 
@@ -21,82 +20,60 @@
 	display: block;
 	width: min(100%, 280px);
 	height: auto;
-	margin: 0 auto 18px;
+	margin: 0 auto 24px;
 }
 
-.signup-box {
+.login-box {
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	gap: 14px;
 }
 
-.is-hidden {
-	display: none;
+.eyebrow {
+	margin: 0;
+	color: var(--blue);
+	font-size: 0.82rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
 }
 
-.signup-box h2,
 .login-box h2 {
-	margin: 0 0 8px;
+	margin: 0;
 	font-size: 1.75rem;
 	line-height: 1.2;
 }
 
-.signup-box p {
-	margin: 0 0 18px;
+.intro {
+	margin: 0;
 	color: var(--inactive-text);
 	font-size: 1rem;
 }
 
-.signup-box ul {
-	list-style: none;
-	padding: 0;
-	margin: 0 0 20px;
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
+.status-message {
+	display: none;
+	border-radius: 10px;
+	padding: 12px 14px;
+	font-size: 0.92rem;
+	line-height: 1.4;
 }
 
-.signup-box li {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	color: var(--text-color);
-	font-size: 0.96rem;
+.status-message.is-visible {
+	display: block;
 }
 
-.signup-box .fa-check {
-	color: var(--blue);
+.status-message.is-error {
+	background-color: rgba(198, 64, 64, 0.14);
+	border: 1px solid rgba(198, 64, 64, 0.3);
+	color: #ffb9b9;
 }
 
-.separator {
-	position: relative;
-	text-align: center;
-	margin: 18px 0;
-	color: var(--inactive-text);
-	font-size: 0.88rem;
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
+.status-message.is-success {
+	background-color: rgba(57, 173, 106, 0.14);
+	border: 1px solid rgba(57, 173, 106, 0.3);
+	color: #b8f5cd;
 }
 
-.separator::before,
-.separator::after {
-	content: "";
-	position: absolute;
-	top: 50%;
-	width: 42%;
-	height: 1px;
-	background: var(--panel-border);
-}
-
-.separator::before {
-	left: 0;
-}
-
-.separator::after {
-	right: 0;
-}
-
-#signupForm,
 #loginForm {
 	display: flex;
 	flex-direction: column;
@@ -135,25 +112,21 @@
 	background-color: #181a1d;
 }
 
-button[type="submit"],
-.oauth-btn {
+button[type="submit"] {
 	width: 100%;
+	margin-top: 4px;
 	border: 1px solid transparent;
 	border-radius: 8px;
 	padding: 11px 12px;
 	font-size: 0.95rem;
 	font-weight: 600;
 	color: var(--text-color);
+	background-color: var(--blue);
 	cursor: pointer;
 	transition:
 		transform 0.15s ease,
-		border-color 0.2s ease,
 		background-color 0.2s ease,
 		opacity 0.2s ease;
-}
-
-button[type="submit"] {
-	background-color: var(--blue);
 }
 
 button[type="submit"]:hover {
@@ -161,77 +134,14 @@ button[type="submit"]:hover {
 	transform: translateY(-1px);
 }
 
-button[type="submit"]:active,
-.oauth-btn:active {
+button[type="submit"]:active {
 	transform: translateY(0);
 }
 
-.oauth-buttons {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 10px;
-}
-
-.oauth-btn {
-	background-color: #1f2227;
-	border-color: var(--panel-border);
-	padding: 10px 8px;
-	font-size: 0.88rem;
-}
-
-.oauth-btn:hover {
-	background-color: #272a30;
-	border-color: #4b4f58;
-}
-
-.oauth-btn .fa {
-	margin-right: 8px;
-}
-
-.oauth-btn.github:hover {
-	border-color: #7f8795;
-}
-
-.oauth-btn.google:hover {
-	border-color: #e26952;
-}
-
-.oauth-btn.apple:hover {
-	border-color: #a5acb7;
-}
-
-.options {
-	margin-top: 16px;
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-
-.options a {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	background-color: var(--blue);
-	border: 1px solid transparent;
-	border-radius: 8px;
-	padding: 11px 12px;
-	font-size: 0.92rem;
-	font-weight: 600;
-	color: var(--text-color);
-	transition:
-		background-color 0.2s ease,
-		transform 0.15s ease;
-}
-
-.options a:hover {
-	background-color: #2b5fca;
-	transform: translateY(-1px);
-}
-
-.options .fa {
-	margin-right: 8px;
-	color: var(--text-color);
+button[type="submit"]:disabled {
+	cursor: wait;
+	opacity: 0.75;
+	transform: none;
 }
 
 @media (max-width: 980px) {
@@ -245,19 +155,16 @@ button[type="submit"]:active,
 		padding: 16px;
 	}
 
-	.signup-box,
-	.login-box {
-		padding: 18px;
-		border-radius: 10px;
+	.login-shell {
+		padding: 22px;
+		border-radius: 12px;
 	}
 
-	.signup-box h2,
+	.auth-banner {
+		margin-bottom: 20px;
+	}
+
 	.login-box h2 {
 		font-size: 1.45rem;
-	}
-
-	.oauth-btn {
-		padding: 10px 6px;
-		font-size: 0.8rem;
 	}
 }

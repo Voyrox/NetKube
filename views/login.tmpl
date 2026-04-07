@@ -18,62 +18,43 @@
   </head>
   <body>
     <div class="container">
-      <div class="signup-box is-hidden" id="signupBox">
+      <div class="login-shell">
         <img class="auth-banner" src="public/logo/banner.png" alt="NetKube" />
-        <h2>Welcome!</h2>
-        <p>Your all-in-one Kubernetes management solution.</p>
-        <ul>
-          <li><i class="fa fa-check"></i> Manage multiple clusters with ease</li>
-          <li><i class="fa fa-check"></i> Real-time monitoring and alerts</li>
-          <li><i class="fa fa-check"></i> Seamless integration with your favorite tools</li>
-            <li><i class="fa fa-check"></i> Secure and reliable access control</li>
-        </ul>
-        <div class="separator">or</div>
-        <form id="signupForm">
-          <div class="input-group">
-            <label for="signup-email">Email</label>
-            <input type="email" id="signup-email" name="email" required />
-          </div>
-          <div class="input-group">
-            <label for="signup-password">Password</label>
-            <input type="password" id="signup-password" name="password" required />
-          </div>
-          <button type="submit">Sign Up</button>
-        </form>
-        <div class="options">
-          <a id="showLogin" href="#"><i class="fa fa-sign-in"></i> Back to Login</a>
-        </div>
-      </div>
-      <div class="login-box" id="loginBox">
-        <img class="auth-banner" src="public/logo/banner.png" alt="NetKube" />
-        <h2>Login</h2>
-        <form id="loginForm">
-          <div class="input-group">
-            <label for="login-email">Email</label>
-            <input type="email" id="login-email" name="email" required />
-          </div>
-          <div class="input-group">
-            <label for="login-password">Password</label>
-            <input type="password" id="login-password" name="password" required />
-          </div>
-          <button type="submit">Login</button>
-        </form>
-        <div class="separator">or</div>
-        <div class="oauth-buttons">
-          <button id="githubLogin" class="oauth-btn github">
-            <i class="fa fa-github"></i> GitHub
-          </button>
-          <button id="googleLogin" class="oauth-btn google">
-            <i class="fa fa-google"></i> Google
-          </button>
-          <button id="appleLogin" class="oauth-btn apple">
-            <i class="fa fa-apple"></i> Apple
-          </button>
-          </div>
-          <div class="options">
-            <a href="/sso"><i class="fa fa-lock"></i> Continue with SSO</a>
-            <a id="showSignup" href="#"><i class="fa fa-user-plus"></i> Don't have an account? Sign up</a>
-          </div>
+
+        <div class="login-box">
+          <p class="eyebrow">Secure access</p>
+          <h2>Log in to NetKube</h2>
+          <p class="intro">
+            Enter the email and password configured in your `.env` file to continue.
+          </p>
+
+          <div class="status-message" id="loginStatus" role="alert" aria-live="polite"></div>
+
+          <form id="loginForm">
+            <div class="input-group">
+              <label for="login-email">Email</label>
+              <input
+                type="text"
+                id="login-email"
+                name="email"
+                autocomplete="username"
+                required
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="login-password">Password</label>
+              <input
+                type="password"
+                id="login-password"
+                name="password"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+
+            <button type="submit" id="loginButton">Log In</button>
+          </form>
         </div>
       </div>
     </div>
