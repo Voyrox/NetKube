@@ -12,6 +12,7 @@
   gap: 16px;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .pod-summary-card,
@@ -131,6 +132,7 @@
   gap: 12px;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .pod-tab-panel[data-pod-panel="overview"] {
@@ -159,6 +161,13 @@
 
 .pod-tab-panel[data-deployment-panel="yaml"] {
   grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.pod-tab-panel[data-pod-panel="events"],
+.pod-tab-panel[data-pod-panel="yaml"],
+.pod-tab-panel[data-deployment-panel="events"],
+.pod-tab-panel[data-deployment-panel="yaml"] {
+  grid-auto-rows: minmax(0, 1fr);
 }
 
 .pod-panel__header--spaced {
@@ -207,6 +216,18 @@
 
 .pod-tab-panel[data-deployment-panel="overview"] .pod-panel {
   height: 100%;
+  min-height: 0;
+}
+
+.pod-tab-panel[data-pod-panel="events"] .pod-panel,
+.pod-tab-panel[data-pod-panel="yaml"] .pod-panel,
+.pod-tab-panel[data-deployment-panel="events"] .pod-panel,
+.pod-tab-panel[data-deployment-panel="yaml"] .pod-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .deployment-detail-list {
@@ -322,6 +343,7 @@
   display: grid;
   gap: 10px;
   margin-top: 12px;
+  min-height: 0;
 }
 
 .pod-detail-list,
@@ -482,6 +504,17 @@
   line-height: 1.45;
 }
 
+.pod-tab-panel[data-pod-panel="events"] .pod-events-list,
+.pod-tab-panel[data-deployment-panel="events"] .pod-events-list,
+.pod-tab-panel[data-pod-panel="yaml"] .pod-keyvalue-list,
+.pod-tab-panel[data-pod-panel="yaml"] .pod-yaml-viewer,
+.pod-tab-panel[data-deployment-panel="yaml"] .pod-yaml-viewer {
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  overflow: auto;
+}
+
 
 .pod-event-item__meta {
   align-items: center;
@@ -568,6 +601,15 @@
 @media (max-width: 900px) {
   .pod-manage-page {
     height: auto;
+    overflow: visible;
+  }
+
+  .pod-manage-shell,
+  .pod-tab-panel--active,
+  .pod-tab-panel[data-pod-panel="events"] .pod-panel,
+  .pod-tab-panel[data-pod-panel="yaml"] .pod-panel,
+  .pod-tab-panel[data-deployment-panel="events"] .pod-panel,
+  .pod-tab-panel[data-deployment-panel="yaml"] .pod-panel {
     overflow: visible;
   }
 

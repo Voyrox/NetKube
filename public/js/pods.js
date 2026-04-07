@@ -1,24 +1,31 @@
-document.addEventListener("DOMContentLoaded", async () => {
+let podItems = [];
+
+document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("deploymentSearch");
 
-  try {
-    const data = await fetchClusterData("/api/workloads/pods");
-    applyPageMeta(data.meta, { namespaceId: "podsNamespaceFilter" });
-    setText("podsTableCount", `${data.count || 0} rows`);
-    setText("podsHeroTitle", `Pods (${data.stats?.running || 0} running)`);
-    renderPodsTable(data.items || []);
+  searchInput?.addEventListener("input", () => {
+    renderFilteredPods(searchInput.value);
+  });
 
-    if (searchInput) {
-      searchInput.addEventListener("input", () => {
-        const filteredItems = filterPods(data.items || [], searchInput.value);
-        renderPodsTable(filteredItems, filteredItems.length ? "" : "No pods match your search");
-        setText("podsTableCount", `${filteredItems.length} rows`);
-      });
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData("/api/workloads/pods");
+      podItems = data.items || [];
+      applyPageMeta(data.meta, { namespaceId: "podsNamespaceFilter" });
+      setText("podsHeroTitle", `Pods (${data.stats?.running || 0} running)`);
+      renderFilteredPods(searchInput?.value || "");
+    } catch (error) {
+      podItems = [];
+      renderPodsTable([], error.message || "Failed to load pods");
     }
-  } catch (error) {
-    renderPodsTable([], error.message || "Failed to load pods");
-  }
+  });
 });
+
+function renderFilteredPods(query) {
+  const filteredItems = filterPods(podItems, query);
+  renderPodsTable(filteredItems, filteredItems.length ? "" : "No pods match your search");
+  setText("podsTableCount", `${filteredItems.length} rows`);
+}
 
 function filterPods(items, query) {
   const normalized = String(query || "").trim().toLowerCase();

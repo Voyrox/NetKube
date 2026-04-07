@@ -1,15 +1,17 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   initializeLeaseDrawer();
 
-  try {
-    const data = await fetchClusterData("/api/cluster/leases");
-    applyPageMeta(data.meta);
-    setText("leasesHeroTitle", `Leases (${data.count || 0})`);
-    setText("leasesTableCount", `${data.count || 0} rows`);
-    renderLeasesTable(data.items || []);
-  } catch (error) {
-    renderLeasesTable([], error.message || "Failed to load leases");
-  }
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData("/api/cluster/leases");
+      applyPageMeta(data.meta);
+      setText("leasesHeroTitle", `Leases (${data.count || 0})`);
+      setText("leasesTableCount", `${data.count || 0} rows`);
+      renderLeasesTable(data.items || []);
+    } catch (error) {
+      renderLeasesTable([], error.message || "Failed to load leases");
+    }
+  });
 });
 
 function renderLeasesTable(items, message) {

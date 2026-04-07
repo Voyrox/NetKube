@@ -1,9 +1,10 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const namespace = params.get("namespace") || "";
   const name = params.get("name") || "";
 
   initializeDeploymentTabs();
+  bindCopyYAML("deploymentYamlCopyButton", "deploymentYamlContent");
 
   if (!namespace || !name) {
     renderDeploymentError("Missing deployment name or namespace in the URL.");
@@ -12,19 +13,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const requestQuery = new URLSearchParams({ namespace, name }).toString();
 
-  try {
-    const data = await fetchClusterData(`/api/workloads/deployment?${requestQuery}`);
-    applyPageMeta(data.meta);
-    renderDeploymentDetail(data.item || {});
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData(`/api/workloads/deployment?${requestQuery}`);
+      applyPageMeta(data.meta);
+      renderDeploymentDetail(data.item || {});
 
-    await Promise.all([
-      loadDeploymentEvents(requestQuery),
-      loadDeploymentYAML(requestQuery)
-    ]);
-    bindCopyYAML("deploymentYamlCopyButton", "deploymentYamlContent");
-  } catch (error) {
-    renderDeploymentError(error.message || "Failed to load deployment details");
-  }
+      await Promise.all([
+        loadDeploymentEvents(requestQuery),
+        loadDeploymentYAML(requestQuery)
+      ]);
+    } catch (error) {
+      renderDeploymentError(error.message || "Failed to load deployment details");
+    }
+  });
 });
 
 function initializeDeploymentTabs() {

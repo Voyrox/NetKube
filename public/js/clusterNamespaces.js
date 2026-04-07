@@ -1,15 +1,17 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   initializeNamespaceDrawer();
 
-  try {
-    const data = await fetchClusterData("/api/cluster/namespaces");
-    applyPageMeta(data.meta);
-    setText("namespacesHeroTitle", `Namespaces (${data.count || 0})`);
-    setText("namespacesTableCount", `${data.count || 0} rows`);
-    renderNamespacesTable(data.items || []);
-  } catch (error) {
-    renderNamespacesTable([], error.message || "Failed to load namespaces");
-  }
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData("/api/cluster/namespaces");
+      applyPageMeta(data.meta);
+      setText("namespacesHeroTitle", `Namespaces (${data.count || 0})`);
+      setText("namespacesTableCount", `${data.count || 0} rows`);
+      renderNamespacesTable(data.items || []);
+    } catch (error) {
+      renderNamespacesTable([], error.message || "Failed to load namespaces");
+    }
+  });
 });
 
 function renderNamespacesTable(items, message) {

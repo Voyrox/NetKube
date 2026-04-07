@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const query = new URLSearchParams();
   ["namespace", "name", "reason", "kind"].forEach((key) => {
@@ -7,20 +7,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  try {
-    const data = await fetchClusterData(`/api/cluster/event${query.toString() ? `?${query.toString()}` : ""}`);
-    applyPageMeta(data.meta);
-    renderClusterEvent(data.item || {});
-  } catch (error) {
-    renderClusterEventError(error.message || "Failed to load event details");
-  }
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData(`/api/cluster/event${query.toString() ? `?${query.toString()}` : ""}`);
+      applyPageMeta(data.meta);
+      renderClusterEvent(data.item || {});
+    } catch (error) {
+      renderClusterEventError(error.message || "Failed to load event details");
+    }
+  });
 });
 
 function renderClusterEvent(item) {
-  setText("eventHeroTitle", item.title || "Event");
+  setText("eventHeroTitle", getEventHeroTitle(item));
   setText("eventTypeMeta", item.type || "-");
   setText("eventNamespaceMeta", item.namespace || "-");
-  setText("eventTitle", item.title || "-");
+  setText("eventTitle", getEventHeadline(item));
   setText("eventSummary", item.message || "-");
   setText("eventReason", item.reason || "-");
   setText("eventObject", item.involvedObject || "-");
@@ -41,6 +43,22 @@ function renderClusterEvent(item) {
   }
 
   renderEventTimeline(item.timeline || []);
+}
+
+function getEventHeroTitle(item) {
+  return item.name || item.involvedObject || item.kind || item.reason || "Event";
+}
+
+function getEventHeadline(item) {
+  if (item.reason && item.kind && item.name) {
+    return `${item.reason} - ${item.kind}/${item.name}`;
+  }
+
+  if (item.reason && item.name) {
+    return `${item.reason} - ${item.name}`;
+  }
+
+  return item.reason || item.title || item.involvedObject || item.name || "-";
 }
 
 function renderEventTimeline(items) {

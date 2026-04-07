@@ -1,24 +1,31 @@
-document.addEventListener("DOMContentLoaded", async () => {
+let deploymentItems = [];
+
+document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("deploymentSearch");
 
-  try {
-    const data = await fetchClusterData("/api/workloads/deployments");
-    applyPageMeta(data.meta, { namespaceId: "deploymentsNamespaceFilter" });
-    setText("deploymentsTableCount", `${data.count || 0} rows`);
-    setText("deploymentsHeroTitle", `Deployments (${data.stats?.healthy || 0} healthy)`);
-    renderDeploymentsTable(data.items || []);
+  searchInput?.addEventListener("input", () => {
+    renderFilteredDeployments(searchInput.value);
+  });
 
-    if (searchInput) {
-      searchInput.addEventListener("input", () => {
-        const filteredItems = filterDeployments(data.items || [], searchInput.value);
-        renderDeploymentsTable(filteredItems, filteredItems.length ? "" : "No deployments match your search");
-        setText("deploymentsTableCount", `${filteredItems.length} rows`);
-      });
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData("/api/workloads/deployments");
+      deploymentItems = data.items || [];
+      applyPageMeta(data.meta, { namespaceId: "deploymentsNamespaceFilter" });
+      setText("deploymentsHeroTitle", `Deployments (${data.stats?.healthy || 0} healthy)`);
+      renderFilteredDeployments(searchInput?.value || "");
+    } catch (error) {
+      deploymentItems = [];
+      renderDeploymentsTable([], error.message || "Failed to load deployments");
     }
-  } catch (error) {
-    renderDeploymentsTable([], error.message || "Failed to load deployments");
-  }
+  });
 });
+
+function renderFilteredDeployments(query) {
+  const filteredItems = filterDeployments(deploymentItems, query);
+  renderDeploymentsTable(filteredItems, filteredItems.length ? "" : "No deployments match your search");
+  setText("deploymentsTableCount", `${filteredItems.length} rows`);
+}
 
 function filterDeployments(items, query) {
   const normalized = String(query || "").trim().toLowerCase();

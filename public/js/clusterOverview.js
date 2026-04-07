@@ -1,16 +1,18 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const data = await fetchClusterData("/api/cluster/overview");
-    applyPageMeta(data.meta);
+document.addEventListener("DOMContentLoaded", () => {
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData("/api/cluster/overview");
+      applyPageMeta(data.meta);
 
-    renderMetricCard("nodes", data.nodes, ["Ready", "Pending", "Not ready", "Other"]);
-    renderMetricCard("pv", data.persistentVolumes, ["Bound", "Pending", "Failed", "Other"]);
-    renderMetricCard("crd", data.customResources, ["Established", "Pending", "Terminating", "Other"]);
-    renderResourceUsage(data.resourceUsage);
-    renderWarnings("clusterWarningsList", "clusterWarningsEmpty", data.warnings);
-  } catch (error) {
-    setText("clusterWarningsEmpty", error.message || "Failed to load cluster overview");
-  }
+      renderMetricCard("nodes", data.nodes, ["Ready", "Pending", "Not ready", "Other"]);
+      renderMetricCard("pv", data.persistentVolumes, ["Bound", "Pending", "Failed", "Other"]);
+      renderMetricCard("crd", data.customResources, ["Established", "Pending", "Terminating", "Other"]);
+      renderResourceUsage(data.resourceUsage);
+      renderWarnings("clusterWarningsList", "clusterWarningsEmpty", data.warnings);
+    } catch (error) {
+      setText("clusterWarningsEmpty", error.message || "Failed to load cluster overview");
+    }
+  });
 });
 
 function renderMetricCard(prefix, metric, labels) {

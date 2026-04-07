@@ -287,9 +287,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         row.classList.add("selected");
       }
 
+      let iconSrc = "./public/logo/kubernetes.svg";
+      if (item.contextName.includes("google")) {
+        iconSrc = "./public/logo/google.svg";
+      } else if (item.contextName.includes("azure")) {
+        iconSrc = "./public/logo/azure.svg";
+      }
+
+
       row.innerHTML = `
         <div class="icon">
-          <img src="./public/logo/kubernetes.svg" alt="Kubernetes" />
+          <img src="${iconSrc}" alt="Kubernetes" />
         </div>
 
         <div class="text">

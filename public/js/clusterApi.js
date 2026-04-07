@@ -1,4 +1,5 @@
 const CLUSTER_CONTEXT_HEADER = "X-NetKube-Context";
+const DATA_REFRESH_INTERVAL_MS = 5000;
 
 async function fetchClusterData(path, options = {}) {
   const contextId = window.NetKubeStorage?.getActiveContextId();
@@ -219,4 +220,32 @@ function setDrawerText(id, value) {
 
   element.classList.remove("resource-drawer__content--yaml");
   element.textContent = value;
+}
+
+function startAutoRefresh(load, interval = DATA_REFRESH_INTERVAL_MS) {
+  let inFlight = false;
+
+  const run = async () => {
+    if (inFlight || document.hidden) {
+      return;
+    }
+
+    inFlight = true;
+    try {
+      await load();
+    } finally {
+      inFlight = false;
+    }
+  };
+
+  run();
+  const timer = window.setInterval(run, interval);
+  window.addEventListener("beforeunload", () => window.clearInterval(timer), { once: true });
+
+  return {
+    run,
+    stop() {
+      window.clearInterval(timer);
+    }
+  };
 }

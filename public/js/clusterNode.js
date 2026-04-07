@@ -1,15 +1,17 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const name = params.get("name") || "";
   const query = name ? `?${new URLSearchParams({ name }).toString()}` : "";
 
-  try {
-    const data = await fetchClusterData(`/api/cluster/node${query}`);
-    applyPageMeta(data.meta);
-    renderNode(data.item || {});
-  } catch (error) {
-    renderNodeError(error.message || "Failed to load node details");
-  }
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData(`/api/cluster/node${query}`);
+      applyPageMeta(data.meta);
+      renderNode(data.item || {});
+    } catch (error) {
+      renderNodeError(error.message || "Failed to load node details");
+    }
+  });
 });
 
 function renderNode(item) {

@@ -1,13 +1,15 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const data = await fetchClusterData("/api/cluster/nodes");
-    applyPageMeta(data.meta);
-    setText("nodesHeroTitle", `Nodes (${data.count || 0})`);
-    setText("nodesTableCount", `${data.count || 0} rows`);
-    renderNodesTable(data.items || []);
-  } catch (error) {
-    renderNodesTable([], error.message || "Failed to load nodes");
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData("/api/cluster/nodes");
+      applyPageMeta(data.meta);
+      setText("nodesHeroTitle", `Nodes (${data.count || 0})`);
+      setText("nodesTableCount", `${data.count || 0} rows`);
+      renderNodesTable(data.items || []);
+    } catch (error) {
+      renderNodesTable([], error.message || "Failed to load nodes");
+    }
+  });
 });
 
 function renderNodesTable(items, message) {

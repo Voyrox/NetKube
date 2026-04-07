@@ -1,13 +1,15 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const data = await fetchClusterData("/api/networking/services");
-    applyPageMeta(data.meta);
-    setText("servicesHeroTitle", `Services (${data.count || 0})`);
-    setText("servicesTableCount", `${data.count || 0} rows`);
-    renderServicesTable(data.items || []);
-  } catch (error) {
-    renderServicesTable([], error.message || "Failed to load services");
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData("/api/networking/services");
+      applyPageMeta(data.meta);
+      setText("servicesHeroTitle", `Services (${data.count || 0})`);
+      setText("servicesTableCount", `${data.count || 0} rows`);
+      renderServicesTable(data.items || []);
+    } catch (error) {
+      renderServicesTable([], error.message || "Failed to load services");
+    }
+  });
 });
 
 function renderServicesTable(items, message) {

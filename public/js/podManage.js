@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const name = params.get("name") || "";
 
   initializePodTabs();
+  bindCopyYAML();
 
   if (!namespace || !name) {
     renderPodError("Missing pod name or namespace in the URL.");
@@ -14,22 +15,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const requestQuery = new URLSearchParams({ namespace, name }).toString();
 
-  try {
-    const data = await fetchClusterData(`/api/workloads/pod?${requestQuery}`);
-    applyPageMeta(data.meta);
-    renderPodDetail(data.item || {});
+  startAutoRefresh(async () => {
+    try {
+      const data = await fetchClusterData(`/api/workloads/pod?${requestQuery}`);
+      applyPageMeta(data.meta);
+      renderPodDetail(data.item || {});
 
-    const containerNames = (data.item?.containers || []).map((item) => item.name).filter(Boolean);
-    setupLogSelectors(containerNames, (container) => loadPodLogs(requestQuery, container));
-    await Promise.all([
-      loadPodLogs(requestQuery, containerNames[0] || ""),
-      loadPodEvents(requestQuery),
-      loadPodYAML(requestQuery)
-    ]);
-    bindCopyYAML();
-  } catch (error) {
-    renderPodError(error.message || "Failed to load pod details");
-  }
+      const containerNames = (data.item?.containers || []).map((item) => item.name).filter(Boolean);
+      const selectedContainer = getSelectedLogContainer();
+      const preferredContainer = containerNames.includes(selectedContainer)
+        ? selectedContainer
+        : (containerNames[0] || "");
+
+      setupLogSelectors(containerNames, (container) => loadPodLogs(requestQuery, container));
+      await Promise.all([
+        loadPodLogs(requestQuery, preferredContainer),
+        loadPodEvents(requestQuery),
+        loadPodYAML(requestQuery)
+      ]);
+    } catch (error) {
+      renderPodError(error.message || "Failed to load pod details");
+    }
+  });
 });
 
 window.addEventListener("beforeunload", () => {
@@ -171,15 +178,19 @@ function setupLogSelectors(containerNames, onChange) {
       ? containerNames.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")
       : '<option value="">No containers</option>';
 
-    select.addEventListener("change", () => {
+    select.onchange = () => {
       selectors.forEach((other) => {
         if (other && other !== select) {
           other.value = select.value;
         }
       });
       onChange(select.value);
-    });
+    };
   });
+}
+
+function getSelectedLogContainer() {
+  return document.getElementById("podLogContainerSelect")?.value || document.getElementById("podLogsContainerSelect")?.value || "";
 }
 
 async function loadPodLogs(requestQuery, container) {
