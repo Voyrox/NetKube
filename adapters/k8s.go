@@ -11,12 +11,14 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 type ClusterClient struct {
 	Context             storage.ContextItem
 	Clientset           *kubernetes.Clientset
 	APIExtensionsClient *apiextensionsclient.Clientset
+	MetricsClient       *metricsclient.Clientset
 }
 
 func ResolveCluster(contextID string) (*ClusterClient, error) {
@@ -97,10 +99,16 @@ func ResolveCluster(contextID string) (*ClusterClient, error) {
 		return nil, fmt.Errorf("create api extensions client: %w", err)
 	}
 
+	metricsClient, err := metricsclient.NewForConfig(rest.CopyConfig(restConfig))
+	if err != nil {
+		return nil, fmt.Errorf("create metrics client: %w", err)
+	}
+
 	return &ClusterClient{
 		Context:             selected,
 		Clientset:           clientset,
 		APIExtensionsClient: apiExtensionsClient,
+		MetricsClient:       metricsClient,
 	}, nil
 }
 

@@ -46,13 +46,15 @@
             <section class="summary-grid" aria-label="Kubernetes resource summary">
                 <article class="summary-card summary-card--wide">
                     <div class="summary-card__header">
-                        <div>
+                        <div class="summary-card__title">
                             <p class="summary-kicker">Nodes</p>
                             <h2>Nodes</h2>
                         </div>
-                        <span class="status-chip status-chip--healthy" id="nodesStatus">Healthy</span>
+                        <div class="summary-card__meta">
+                            <span class="status-chip status-chip--healthy" id="nodesStatus">Healthy</span>
+                            <div class="summary-number" id="nodesTotal">0</div>
+                        </div>
                     </div>
-                    <div class="summary-number" id="nodesTotal">0</div>
                     <div class="health-bar" aria-hidden="true">
                         <span class="segment healthy" style="width: 72%"></span>
                         <span class="segment warning" style="width: 18%"></span>
@@ -68,13 +70,15 @@
 
                 <article class="summary-card">
                     <div class="summary-card__header">
-                        <div>
+                        <div class="summary-card__title">
                             <p class="summary-kicker">Persistent Volumes</p>
                             <h2>Persistent Volumes</h2>
                         </div>
-                        <span class="status-chip status-chip--healthy" id="pvStatus">Stable</span>
+                        <div class="summary-card__meta">
+                            <span class="status-chip status-chip--healthy" id="pvStatus">Stable</span>
+                            <div class="summary-number" id="pvTotal">0</div>
+                        </div>
                     </div>
-                    <div class="summary-number" id="pvTotal">0</div>
                     <div class="health-bar" aria-hidden="true">
                         <span class="segment healthy" style="width: 84%"></span>
                         <span class="segment warning" style="width: 12%"></span>
@@ -90,13 +94,15 @@
 
                 <article class="summary-card">
                     <div class="summary-card__header">
-                        <div>
+                        <div class="summary-card__title">
                             <p class="summary-kicker">CRDs</p>
                             <h2>Custom Resource Definitions</h2>
                         </div>
-                        <span class="status-chip status-chip--warning" id="crdStatus">Attention</span>
+                        <div class="summary-card__meta">
+                            <span class="status-chip status-chip--warning" id="crdStatus">Attention</span>
+                            <div class="summary-number" id="crdTotal">0</div>
+                        </div>
                     </div>
-                    <div class="summary-number" id="crdTotal">0</div>
                     <div class="health-bar" aria-hidden="true">
                         <span class="segment healthy" style="width: 61%"></span>
                         <span class="segment warning" style="width: 27%"></span>
@@ -128,23 +134,23 @@
                         <div class="resource-usage-row">
                             <div class="resource-usage-label">
                                 <strong>CPU</strong>
-                                <span>0%</span>
+                                <span id="usageCpuPercent">0%</span>
                             </div>
                             <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" style="width: 0%"></span>
+                                <span class="resource-usage-fill" id="usageCpuFill" style="width: 0%"></span>
                             </div>
-                            <div class="resource-usage-value">0m / 20</div>
+                            <div class="resource-usage-value" id="usageCpuValue">0m / 0m</div>
                         </div>
 
                         <div class="resource-usage-row">
                             <div class="resource-usage-label">
                                 <strong>Memory</strong>
-                                <span>0%</span>
+                                <span id="usageMemoryPercent">0%</span>
                             </div>
                             <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" style="width: 0%"></span>
+                                <span class="resource-usage-fill" id="usageMemoryFill" style="width: 0%"></span>
                             </div>
-                            <div class="resource-usage-value">0Mi / 27.25Gi</div>
+                            <div class="resource-usage-value" id="usageMemoryValue">0Mi / 0Mi</div>
                         </div>
                     </article>
 
@@ -154,34 +160,34 @@
                         <div class="resource-usage-row">
                             <div class="resource-usage-label">
                                 <strong>Pods</strong>
-                                <span>5%</span>
+                                <span id="requestsPodsPercent">0%</span>
                             </div>
                             <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" style="width: 5%"></span>
+                                <span class="resource-usage-fill" id="requestsPodsFill" style="width: 0%"></span>
                             </div>
-                            <div class="resource-usage-value">11 / 220</div>
+                            <div class="resource-usage-value" id="requestsPodsValue">0 / 0</div>
                         </div>
 
                         <div class="resource-usage-row">
                             <div class="resource-usage-label">
                                 <strong>CPU</strong>
-                                <span>3%</span>
+                                <span id="requestsCpuPercent">0%</span>
                             </div>
                             <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" style="width: 3%"></span>
+                                <span class="resource-usage-fill" id="requestsCpuFill" style="width: 0%"></span>
                             </div>
-                            <div class="resource-usage-value">660m / 19.9</div>
+                            <div class="resource-usage-value" id="requestsCpuValue">0m / 0m</div>
                         </div>
 
                         <div class="resource-usage-row">
                             <div class="resource-usage-label">
                                 <strong>Memory</strong>
-                                <span>4%</span>
+                                <span id="requestsMemoryPercent">0%</span>
                             </div>
                             <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" style="width: 4%"></span>
+                                <span class="resource-usage-fill" id="requestsMemoryFill" style="width: 0%"></span>
                             </div>
-                            <div class="resource-usage-value">1.05Gi / 26.18Gi</div>
+                            <div class="resource-usage-value" id="requestsMemoryValue">0Mi / 0Mi</div>
                         </div>
                     </article>
                 </div>

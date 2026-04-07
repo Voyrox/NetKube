@@ -97,6 +97,9 @@
 	border-radius: 14px;
 	background: linear-gradient(180deg, rgba(38, 40, 45, 0.98), rgba(32, 34, 39, 0.98));
 	box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .summary-card--wide {
@@ -109,6 +112,20 @@
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: 14px;
+}
+
+.summary-card__title {
+	min-width: 0;
+}
+
+.summary-card__meta {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	justify-content: flex-start;
+	gap: 8px;
+	margin-left: auto;
+	text-align: right;
 }
 
 .summary-card h2,
@@ -151,11 +168,11 @@
 }
 
 .summary-number {
-	margin: 8px 0 8px;
 	font-size: 1.7rem;
 	font-weight: 800;
 	line-height: 1;
 	color: var(--blue);
+	white-space: nowrap;
 }
 
 .health-bar {
@@ -172,22 +189,21 @@
 }
 
 .health-bar .healthy {
-	background: linear-gradient(90deg, #2f7d52, #4ec982);
+	background: #4ec982
 }
 
 .health-bar .warning {
-	background: linear-gradient(90deg, #99722a, #f0c15d);
+	background: #f0c15d;
 }
 
 .health-bar .danger {
-	background: linear-gradient(90deg, #99373b, #ef6c73);
+	background: #ef6c73
 }
 
 .summary-breakdown {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 6px 8px;
-	margin-top: 8px;
 }
 
 .summary-breakdown div {
@@ -423,6 +439,14 @@
 
 	.summary-breakdown {
 		grid-template-columns: repeat(1, minmax(0, 1fr));
+	}
+
+	.summary-card__header {
+		align-items: stretch;
+	}
+
+	.summary-card__meta {
+		align-items: flex-end;
 	}
 
 	.resource-usage-row {

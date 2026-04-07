@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"netkube/adapters"
@@ -26,7 +27,25 @@ type clusterOverviewResponse struct {
 	Nodes             overviewMetric `json:"nodes"`
 	PersistentVolumes overviewMetric `json:"persistentVolumes"`
 	CustomResources   overviewMetric `json:"customResources"`
+	ResourceUsage     resourceUsage  `json:"resourceUsage"`
 	Warnings          []warningEvent `json:"warnings"`
+}
+
+type resourceUsageMetric struct {
+	Percent float64 `json:"percent"`
+	Used    string  `json:"used"`
+	Total   string  `json:"total"`
+}
+
+type resourceUsageSection struct {
+	CPU    resourceUsageMetric `json:"cpu"`
+	Memory resourceUsageMetric `json:"memory"`
+	Pods   resourceUsageMetric `json:"pods,omitempty"`
+}
+
+type resourceUsage struct {
+	UsageCapacity    resourceUsageSection `json:"usageCapacity"`
+	RequestsAllocate resourceUsageSection `json:"requestsAllocate"`
 }
 
 type workloadsOverviewResponse struct {
@@ -66,6 +85,12 @@ func ClusterOverviewHandler(c *gin.Context) {
 		return
 	}
 
+	resourceUsage, err := getClusterResourceUsage(cluster)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, clusterOverviewResponse{
 		Meta: pageMetaFromCluster(cluster, ""),
 		Nodes: overviewMetric{
@@ -77,6 +102,7 @@ func ClusterOverviewHandler(c *gin.Context) {
 		},
 		PersistentVolumes: pvMetric,
 		CustomResources:   crdMetric,
+		ResourceUsage:     resourceUsage,
 		Warnings:          listWarningEvents(cluster.Clientset, "", 5),
 	})
 }
@@ -236,6 +262,175 @@ func simpleOverviewMetric(total, primary, warning, danger int) overviewMetric {
 		Danger:  danger,
 		Status:  statusFromCounts(danger, warning),
 	}
+}
+
+func getClusterResourceUsage(cluster *adapters.ClusterClient) (resourceUsage, error) {
+	nodes, err := cluster.Clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return resourceUsage{}, err
+	}
+
+	pods, err := cluster.Clientset.CoreV1().Pods("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return resourceUsage{}, err
+	}
+
+	var usageCPUMilli int64
+	var usageMemoryBytes int64
+	nodeMetrics, err := cluster.MetricsClient.MetricsV1beta1().NodeMetricses().List(context.Background(), metav1.ListOptions{})
+	if err == nil {
+		for _, item := range nodeMetrics.Items {
+			usageCPUMilli += item.Usage.Cpu().MilliValue()
+			usageMemoryBytes += item.Usage.Memory().Value()
+		}
+	}
+
+	var capacityCPUMilli int64
+	var capacityMemoryBytes int64
+	var allocatablePods int64
+	var allocatableCPUMilli int64
+	var allocatableMemoryBytes int64
+
+	for _, node := range nodes.Items {
+		capacityCPUMilli += node.Status.Capacity.Cpu().MilliValue()
+		capacityMemoryBytes += node.Status.Capacity.Memory().Value()
+		allocatablePods += node.Status.Allocatable.Pods().Value()
+		allocatableCPUMilli += node.Status.Allocatable.Cpu().MilliValue()
+		allocatableMemoryBytes += node.Status.Allocatable.Memory().Value()
+	}
+
+	var requestedPods int64
+	var requestedCPUMilli int64
+	var requestedMemoryBytes int64
+	for _, pod := range pods.Items {
+		if pod.Status.Phase == corev1.PodSucceeded || pod.Status.Phase == corev1.PodFailed {
+			continue
+		}
+		requestedPods++
+		requestedCPUMilli += podRequestedCPUMilli(pod)
+		requestedMemoryBytes += podRequestedMemoryBytes(pod)
+	}
+
+	return resourceUsage{
+		UsageCapacity: resourceUsageSection{
+			CPU: resourceUsageMetric{
+				Percent: percentageFloat(usageCPUMilli, capacityCPUMilli),
+				Used:    formatCPU(usageCPUMilli),
+				Total:   formatCPU(capacityCPUMilli),
+			},
+			Memory: resourceUsageMetric{
+				Percent: percentageFloat(usageMemoryBytes, capacityMemoryBytes),
+				Used:    formatBytes(usageMemoryBytes),
+				Total:   formatBytes(capacityMemoryBytes),
+			},
+		},
+		RequestsAllocate: resourceUsageSection{
+			Pods: resourceUsageMetric{
+				Percent: percentageFloat(requestedPods, allocatablePods),
+				Used:    fmt.Sprintf("%d", requestedPods),
+				Total:   fmt.Sprintf("%d", allocatablePods),
+			},
+			CPU: resourceUsageMetric{
+				Percent: percentageFloat(requestedCPUMilli, allocatableCPUMilli),
+				Used:    formatCPU(requestedCPUMilli),
+				Total:   formatCPU(allocatableCPUMilli),
+			},
+			Memory: resourceUsageMetric{
+				Percent: percentageFloat(requestedMemoryBytes, allocatableMemoryBytes),
+				Used:    formatBytes(requestedMemoryBytes),
+				Total:   formatBytes(allocatableMemoryBytes),
+			},
+		},
+	}, nil
+}
+
+func podRequestedCPUMilli(pod corev1.Pod) int64 {
+	var total int64
+	for _, container := range pod.Spec.InitContainers {
+		if value := container.Resources.Requests.Cpu(); value != nil && value.MilliValue() > total {
+			total = value.MilliValue()
+		}
+	}
+	for _, container := range pod.Spec.Containers {
+		if value := container.Resources.Requests.Cpu(); value != nil {
+			total += value.MilliValue()
+		}
+	}
+	if pod.Spec.Overhead != nil {
+		if value := pod.Spec.Overhead.Cpu(); value != nil {
+			total += value.MilliValue()
+		}
+	}
+	return total
+}
+
+func podRequestedMemoryBytes(pod corev1.Pod) int64 {
+	var initMax int64
+	var total int64
+	for _, container := range pod.Spec.InitContainers {
+		if value := container.Resources.Requests.Memory(); value != nil && value.Value() > initMax {
+			initMax = value.Value()
+		}
+	}
+	for _, container := range pod.Spec.Containers {
+		if value := container.Resources.Requests.Memory(); value != nil {
+			total += value.Value()
+		}
+	}
+	if pod.Spec.Overhead != nil {
+		if value := pod.Spec.Overhead.Memory(); value != nil {
+			total += value.Value()
+		}
+	}
+	if initMax > total {
+		return initMax
+	}
+	return total
+}
+
+func percentageFloat(used, total int64) float64 {
+	if total <= 0 {
+		return 0
+	}
+	return (float64(used) / float64(total)) * 100
+}
+
+func formatCPU(milli int64) string {
+	if milli < 1000 {
+		return fmt.Sprintf("%dm", milli)
+	}
+	value := float64(milli) / 1000
+	return trimFloat(value) + " cores"
+}
+
+func formatBytes(bytes int64) string {
+	const (
+		ki = 1024
+		mi = ki * 1024
+		gi = mi * 1024
+	)
+
+	switch {
+	case bytes >= gi:
+		return trimFloat(float64(bytes)/float64(gi)) + "Gi"
+	case bytes >= mi:
+		return trimFloat(float64(bytes)/float64(mi)) + "Mi"
+	case bytes >= ki:
+		return trimFloat(float64(bytes)/float64(ki)) + "Ki"
+	default:
+		return fmt.Sprintf("%dB", bytes)
+	}
+}
+
+func trimFloat(value float64) string {
+	formatted := fmt.Sprintf("%.2f", value)
+	for len(formatted) > 0 && formatted[len(formatted)-1] == '0' {
+		formatted = formatted[:len(formatted)-1]
+	}
+	if len(formatted) > 0 && formatted[len(formatted)-1] == '.' {
+		formatted = formatted[:len(formatted)-1]
+	}
+	return formatted
 }
 
 func readyReplicaSets(items []appsv1.ReplicaSet) int {

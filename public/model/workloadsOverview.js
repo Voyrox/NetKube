@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyPageMeta(data.meta);
 
     renderWorkloadMetric("pods", data.pods, ["Running", "Pending", "Failed", "Other"]);
-    renderWorkloadMetric("deployments", data.deployments, ["Healthy", "Warning", "Pending", "Other"]);
+    renderWorkloadMetric("deployments", data.deployments, ["Healthy", "Warning", "Pending", "Other"], { hideStatus: true });
     renderWorkloadMetric("replicaSets", data.replicaSets, ["Ready", "Pending", "Issues", "Other"]);
     renderWorkloadMetric("daemonSets", data.daemonSets, ["Ready", "Pending", "Issues", "Other"]);
     renderWorkloadMetric("statefulSets", data.statefulSets, ["Ready", "Updating", "Issues", "Other"]);
@@ -17,17 +17,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-function renderWorkloadMetric(prefix, metric, labels) {
+function renderWorkloadMetric(prefix, metric, labels, options = {}) {
   if (!metric) return;
 
-  applyStatusChip(`${prefix}Status`, metric.status || "Unknown");
-  setText(`${prefix}Total`, metric.total || 0);
-  setText(`${prefix}PrimaryLabel`, labels[0]);
-  setText(`${prefix}Primary`, metric.primary || 0);
-  setText(`${prefix}WarningLabel`, labels[1]);
-  setText(`${prefix}Warning`, metric.warning || 0);
-  setText(`${prefix}DangerLabel`, labels[2]);
-  setText(`${prefix}Danger`, metric.danger || 0);
-  setText(`${prefix}OtherLabel`, labels[3]);
-  setText(`${prefix}Other`, Math.max((metric.total || 0) - (metric.primary || 0) - (metric.warning || 0) - (metric.danger || 0), 0));
+  const total = Math.max(Number(metric.total || 0), 0);
+  const primary = Math.max(Number(metric.primary || 0), 0);
+  const warning = Math.max(Number(metric.warning || 0), 0);
+  const danger = Math.max(Number(metric.danger || 0), 0);
+  const other = Math.max(total - primary - warning - danger, 0);
+  const primaryOnly = total > 0 && primary === total && warning === 0 && danger === 0 && other === 0;
+
+  if (!options.hideStatus) {
+    applyStatusChip(`${prefix}Status`, metric.status || "Unknown");
+  }
+
+  setText(`${prefix}Total`, total);
+
+  let visibleItems = 0;
+  visibleItems += toggleSummaryDetail(prefix, "Primary", labels[0], primary, { forceShow: !primaryOnly && total > 0 && primary > 0 });
+  visibleItems += toggleSummaryDetail(prefix, "Warning", labels[1], warning);
+  visibleItems += toggleSummaryDetail(prefix, "Danger", labels[2], danger);
+  visibleItems += toggleSummaryDetail(prefix, "Other", labels[3], other);
+
+  updateSummaryHealthBar(prefix, total, { primary, warning, danger, other });
+  updateSummaryCardVisibility(prefix, total, visibleItems, { showBreakdown: !primaryOnly });
 }
