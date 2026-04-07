@@ -1,0 +1,240 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 14, 0.72);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.modalOverlay.open {
+  display: flex;
+}
+
+.setupModalCard {
+  width: 100%;
+  max-width: 760px;
+  background: #26282d;
+  border: 1px solid #35383e;
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  padding: 24px;
+}
+
+.setupModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.setupModalHeader h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.closeModalButton {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #3f434b;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--inactive-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.closeModalButton:hover {
+  color: var(--text-color);
+  border-color: #555a63;
+}
+
+.setupModalDescription {
+  margin: 14px 0 0;
+  color: var(--inactive-text);
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 640px;
+}
+
+.setupActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.setupActionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #3d424a;
+  background: #1f2227;
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.setupActionButton:hover {
+  border-color: var(--blue);
+}
+
+.setupActionButton i {
+  font-size: 16px;
+  color: var(--inactive-text);
+}
+
+.setupPathInput {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.setupPathInput input {
+  flex: 1;
+  min-height: 46px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #3d424a;
+  background: #1f2227;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.setupPathInput input::placeholder {
+  color: var(--inactive-text);
+}
+
+.setupPathInput input:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.setupListWrap {
+  margin-top: 24px;
+  border: 1px solid #35383e;
+  border-radius: 12px;
+  background: #1d1f23;
+  overflow: hidden;
+}
+
+.setupListHeader {
+  padding: 14px 16px;
+  border-bottom: 1px solid #35383e;
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.setupEmptyState {
+  padding: 20px 16px;
+  color: var(--inactive-text);
+  font-size: 14px;
+}
+
+.setupSourceList {
+  display: flex;
+  flex-direction: column;
+}
+
+.setupSourceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-top: 1px solid #2d3036;
+}
+
+.setupSourceItem:first-child {
+  border-top: none;
+}
+
+.setupSourceLeft {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.setupSourceIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #3b4048;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--inactive-text);
+  flex-shrink: 0;
+}
+
+.setupSourceText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setupSourceName {
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.setupSourceMeta {
+  color: var(--inactive-text);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deleteSourceButton {
+  flex-shrink: 0;
+  min-width: 36px;
+  height: 36px;
+  border: 1px solid #3f434b;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--inactive-text);
+  cursor: pointer;
+}
+
+.deleteSourceButton:hover {
+  color: #ff8a8a;
+  border-color: #a84b4b;
+}
+
+@media (max-width: 640px) {
+  .setupModalCard {
+    padding: 18px;
+  }
+
+  .setupActions {
+    flex-direction: column;
+  }
+
+  .setupActionButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .setupSourceItem {
+    align-items: flex-start;
+  }
+}

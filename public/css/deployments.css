@@ -1,0 +1,227 @@
+.deployments-page {
+	gap: 14px;
+}
+
+.deployments-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 10px 12px;
+	border: 1px solid var(--panel-border);
+	border-radius: 12px;
+	background: linear-gradient(180deg, rgba(38, 40, 45, 0.98), rgba(32, 34, 39, 0.96));
+}
+
+.deployments-toolbar__left,
+.deployments-toolbar__right {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.action-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 10px;
+	border-radius: 10px;
+	border: 1px solid transparent;
+	font: inherit;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: var(--text-color);
+	background: rgba(255, 255, 255, 0.04);
+	cursor: pointer;
+}
+
+.action-button--primary {
+	background: #4ec982;
+	color: #0f1712;
+}
+
+.search-control {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 10px;
+	border-radius: 10px;
+	border: 1px solid var(--panel-border);
+	background: var(--background-color);
+}
+
+.search-control i {
+	color: var(--inactive-text);
+}
+
+.search-control input {
+	min-width: 190px;
+	border: 0;
+	outline: 0;
+	background: transparent;
+	color: var(--text-color);
+	font-size: 0.82rem;
+}
+
+.search-control input::placeholder {
+	color: var(--inactive-text);
+}
+
+.filter-chip {
+	padding: 6px 10px;
+	border-radius: 999px;
+	border: 1px solid var(--panel-border);
+	background: rgba(255, 255, 255, 0.03);
+	color: var(--inactive-text);
+	font: inherit;
+	font-size: 0.76rem;
+	cursor: pointer;
+}
+
+.filter-chip--active {
+	color: var(--text-color);
+	background: rgba(78, 201, 130, 0.12);
+	border-color: rgba(78, 201, 130, 0.3);
+}
+
+.deployment-summary-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.deployments-table-panel {
+	padding: 14px 16px;
+	border: 1px solid var(--panel-border);
+	border-radius: 14px;
+	background: linear-gradient(180deg, rgba(38, 40, 45, 0.98), rgba(32, 34, 39, 0.96));
+}
+
+.deployments-table-panel__header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 14px;
+	margin-bottom: 10px;
+}
+
+.table-hint {
+	padding: 6px 10px;
+	border-radius: 999px;
+	border: 1px solid var(--panel-border);
+	color: var(--inactive-text);
+	font-size: 0.75rem;
+}
+
+.deployments-table-wrap {
+	overflow: auto;
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	background: rgba(255, 255, 255, 0.02);
+}
+
+.deployments-table {
+	width: 100%;
+	min-width: 1200px;
+	border-collapse: collapse;
+	color: var(--text-color);
+}
+
+.deployments-table th,
+.deployments-table td {
+	padding: 12px 14px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	vertical-align: middle;
+	text-align: center;
+	font-size: 0.82rem;
+}
+
+.deployments-table th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background: rgba(30, 32, 36, 0.98);
+	color: var(--inactive-text);
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.deployments-table tbody tr:hover {
+	background: rgba(255, 255, 255, 0.03);
+}
+
+.deployments-table tbody td:nth-child(1) {
+	color: var(--text-color);
+	font-weight: 600;
+}
+
+.deployments-table tbody td:nth-child(2) {
+	color: #8fb6ff;
+	font-weight: 700;
+}
+
+.deployments-table tbody td:nth-child(4) {
+	color: #4ec982;
+	font-weight: 700;
+}
+
+@media (max-width: 1200px) {
+	.deployment-summary-grid {
+		grid-template-columns: repeat(1, minmax(0, 1fr));
+	}
+
+	.deployments-toolbar {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.deployments-toolbar__left,
+	.deployments-toolbar__right {
+		justify-content: flex-start;
+	}
+
+	.search-control input {
+		min-width: 150px;
+	}
+}
+
+@media (max-width: 900px) {
+	.deployments-page {
+		height: auto;
+		overflow: visible;
+	}
+
+	.search-control,
+	.search-control input {
+		width: 100%;
+	}
+
+	.deployments-table-panel__header {
+		flex-direction: column;
+	}
+
+	.deployments-table-wrap {
+		border-radius: 10px;
+	}
+}
+
+@media (max-width: 640px) {
+	.deployments-toolbar,
+	.deployments-table-panel {
+		padding: 12px;
+	}
+
+	.action-button,
+	.filter-chip,
+	.table-hint {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.deployments-toolbar__left,
+	.deployments-toolbar__right {
+		width: 100%;
+	}
+}
