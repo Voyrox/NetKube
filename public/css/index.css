@@ -62,6 +62,40 @@ body {
     flex: 1;
 }
 
+.viewToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.viewToggleButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--inactive-text);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.viewToggleButton:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-color);
+}
+
+.viewToggleButton.is-active {
+    background: rgba(50, 108, 229, 0.16);
+    color: var(--blue);
+}
+
 .search input {
     width: 100%;
     max-width: 320px;
@@ -84,6 +118,10 @@ body {
     cursor: pointer;
 }
 
+.viewToggleButton i {
+    font-size: 16px;
+}
+
 .bottomRow {
     margin-top: 2px;
 }
@@ -97,6 +135,10 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
+}
+
+.contextList.grid-view {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .contextItem {
@@ -226,5 +268,13 @@ body {
 
     .search input {
         max-width: none;
+    }
+
+    .viewToggle {
+        align-self: flex-end;
+    }
+
+    .contextList.grid-view {
+        grid-template-columns: 1fr;
     }
 }

@@ -18,9 +18,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const contextHelperText = document.getElementById("contextHelperText");
   const connectButton = document.getElementById("connectButton");
   const searchInput = document.getElementById("contextSearchInput");
+  const rowViewButton = document.getElementById("rowViewButton");
+  const gridViewButton = document.getElementById("gridViewButton");
   const refreshContextsButton = document.getElementById("refreshContextsButton");
 
   let sources = [];
+  let contextLayout = loadContextLayout();
   let selectedContextIds = await normalizeSelectedContextIds(
     await loadSelectedContextIds()
   );
@@ -55,6 +58,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   searchInput?.addEventListener("input", () => {
     renderContexts();
+  });
+
+  rowViewButton?.addEventListener("click", () => {
+    setContextLayout("row");
+  });
+
+  gridViewButton?.addEventListener("click", () => {
+    setContextLayout("grid");
   });
 
   refreshContextsButton?.addEventListener("click", async () => {
@@ -217,6 +228,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function renderContexts() {
     if (!contextList || !contextHelperText || !connectButton) return;
 
+    applyContextLayout();
     contextList.innerHTML = "";
 
     const query = (searchInput?.value || "").trim().toLowerCase();
@@ -313,6 +325,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (connectButton) {
       connectButton.disabled = selectedContextIds.length === 0;
     }
+  }
+
+  function setContextLayout(layout) {
+    contextLayout = layout === "grid" ? "grid" : "row";
+    window.NetKubeStorage?.setContextLayout(contextLayout);
+    applyContextLayout();
+  }
+
+  function applyContextLayout() {
+    if (!contextList) {
+      return;
+    }
+
+    const isGrid = contextLayout === "grid";
+    contextList.classList.toggle("grid-view", isGrid);
+
+    rowViewButton?.classList.toggle("is-active", !isGrid);
+    rowViewButton?.setAttribute("aria-pressed", String(!isGrid));
+
+    gridViewButton?.classList.toggle("is-active", isGrid);
+    gridViewButton?.setAttribute("aria-pressed", String(isGrid));
+  }
+
+  function loadContextLayout() {
+    const storedLayout = window.NetKubeStorage?.getContextLayout?.();
+    return storedLayout === "grid" ? "grid" : "row";
   }
 
   async function pruneMissingSelections() {

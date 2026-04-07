@@ -1,4 +1,5 @@
 const ACTIVE_CONTEXT_STORAGE_KEY = "netkube.activeContextId";
+const CONTEXT_LAYOUT_STORAGE_KEY = "netkube.contextLayout";
 
 function setActiveContextId(contextId) {
   try {
@@ -30,8 +31,32 @@ function clearActiveContextId() {
   }
 }
 
+function setContextLayout(layout) {
+  try {
+    if (!layout) {
+      localStorage.removeItem(CONTEXT_LAYOUT_STORAGE_KEY);
+      return;
+    }
+
+    localStorage.setItem(CONTEXT_LAYOUT_STORAGE_KEY, layout);
+  } catch (error) {
+    console.error("Failed to save context layout", error);
+  }
+}
+
+function getContextLayout() {
+  try {
+    return localStorage.getItem(CONTEXT_LAYOUT_STORAGE_KEY) || "";
+  } catch (error) {
+    console.error("Failed to load context layout", error);
+    return "";
+  }
+}
+
 window.NetKubeStorage = {
   setActiveContextId,
   getActiveContextId,
-  clearActiveContextId
+  clearActiveContextId,
+  setContextLayout,
+  getContextLayout
 };

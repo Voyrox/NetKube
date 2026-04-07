@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="public/model/model.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-    <script src="public/model/localStorage.js" defer></script>
+    <script src="public/js/localStorage.js" defer></script>
     <script src="public/model/script.js" defer></script>
 
     <link
@@ -32,6 +32,26 @@
 
           <div class="search">
             <input type="text" id="contextSearchInput" placeholder="Search..." />
+            <div class="viewToggle" aria-label="Context layout controls">
+              <button
+                type="button"
+                class="viewToggleButton is-active"
+                id="rowViewButton"
+                aria-label="Row view"
+                aria-pressed="true"
+              >
+                <i class="fa fa-bars"></i>
+              </button>
+              <button
+                type="button"
+                class="viewToggleButton"
+                id="gridViewButton"
+                aria-label="Grid view"
+                aria-pressed="false"
+              >
+                <i class="fa fa-th-large"></i>
+              </button>
+            </div>
             <i class="fa fa-refresh" id="refreshContextsButton"></i>
           </div>
         </div>
@@ -126,3 +146,4 @@
     </div>
   </body>
 </html>
+
