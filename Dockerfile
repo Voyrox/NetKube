@@ -17,7 +17,6 @@ RUN addgroup -S netkube && adduser -S netkube -G netkube
 COPY --from=builder /out/netkube /app/netkube
 COPY views /app/views
 COPY public /app/public
-COPY reference /app/reference
 
 RUN mkdir -p /app/config/uploaded-sources && chown -R netkube:netkube /app
 

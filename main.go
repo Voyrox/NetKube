@@ -75,7 +75,6 @@ func main() {
 	)
 
 	router.Static("/public", "./public")
-	router.Static("/reference", "./reference")
 
 	router.NoRoute(func(c *gin.Context) {
 		c.HTML(http.StatusNotFound, "404", gin.H{
@@ -284,8 +283,7 @@ func authRequired(auth authConfig) gin.HandlerFunc {
 
 func isPublicPath(path string) bool {
 	return path == "/login" ||
-		strings.HasPrefix(path, "/public/") ||
-		strings.HasPrefix(path, "/reference/")
+		strings.HasPrefix(path, "/public/")
 }
 
 func isAuthenticated(c *gin.Context, auth authConfig) bool {

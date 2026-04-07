@@ -3,6 +3,7 @@
 .env
 config
 deploy
+reference
 README.md
 *.exe
 *.dll
