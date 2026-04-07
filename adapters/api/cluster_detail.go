@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	coordinationv1 "k8s.io/api/coordination/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -33,6 +34,32 @@ type nodeListResponse struct {
 	Meta  pageMeta       `json:"meta"`
 	Items []nodeListItem `json:"items"`
 	Count int            `json:"count"`
+}
+
+type namespaceListItem struct {
+	Name  string `json:"name"`
+	Phase string `json:"phase"`
+	Age   string `json:"age"`
+}
+
+type namespaceListResponse struct {
+	Meta  pageMeta            `json:"meta"`
+	Items []namespaceListItem `json:"items"`
+	Count int                 `json:"count"`
+}
+
+type leaseListItem struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Holder    string `json:"holder"`
+	LastRenew string `json:"lastRenew"`
+	Age       string `json:"age"`
+}
+
+type leaseListResponse struct {
+	Meta  pageMeta        `json:"meta"`
+	Items []leaseListItem `json:"items"`
+	Count int             `json:"count"`
 }
 
 type nodeEventRow struct {
@@ -123,6 +150,44 @@ func ClusterNodesHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, nodeListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterNamespacesHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetNamespaceList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, namespaceListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterLeasesHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetLeaseList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, leaseListResponse{
 		Meta:  pageMetaFromCluster(cluster, ""),
 		Items: items,
 		Count: len(items),
@@ -252,6 +317,51 @@ func GetNodeList(clientset *kubernetes.Clientset) ([]nodeListItem, error) {
 	return items, nil
 }
 
+func GetNamespaceList(clientset *kubernetes.Clientset) ([]namespaceListItem, error) {
+	namespaces, err := clientset.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]namespaceListItem, 0, len(namespaces.Items))
+	for _, item := range namespaces.Items {
+		items = append(items, namespaceListItem{
+			Name:  item.Name,
+			Phase: fallback(string(item.Status.Phase)),
+			Age:   formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	return items, nil
+}
+
+func GetLeaseList(clientset *kubernetes.Clientset) ([]leaseListItem, error) {
+	leases, err := clientset.CoordinationV1().Leases("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]leaseListItem, 0, len(leases.Items))
+	for _, item := range leases.Items {
+		items = append(items, leaseListItem{
+			Namespace: item.Namespace,
+			Name:      item.Name,
+			Holder:    leaseHolder(item),
+			LastRenew: leaseRenew(item),
+			Age:       formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+	return items, nil
+}
+
 func GetClusterEventDetail(clientset *kubernetes.Clientset, namespace, name, reason, kind string) (clusterEventDetail, error) {
 	events, err := clientset.CoreV1().Events(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -344,6 +454,20 @@ func minInt(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func leaseHolder(lease coordinationv1.Lease) string {
+	if lease.Spec.HolderIdentity == nil || strings.TrimSpace(*lease.Spec.HolderIdentity) == "" {
+		return "-"
+	}
+	return *lease.Spec.HolderIdentity
+}
+
+func leaseRenew(lease coordinationv1.Lease) string {
+	if lease.Spec.RenewTime == nil || lease.Spec.RenewTime.IsZero() {
+		return "-"
+	}
+	return formatAge(metav1.Time{Time: lease.Spec.RenewTime.Time})
 }
 
 func ClusterNodeYAMLHandler(c *gin.Context) {
