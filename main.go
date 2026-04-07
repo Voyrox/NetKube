@@ -28,15 +28,24 @@ func main() {
 
 	router.LoadHTMLFiles(
 		"views/index.tmpl",
+		"views/404.tmpl",
 		"views/sidebar.tmpl",
 		"views/clusters/overview.tmpl",
 		"views/workloads/overview.tmpl",
 		"views/workloads/deployments.tmpl",
 		"views/workloads/pods.tmpl",
+		"views/workloads/manage/deployment.tmpl",
+		"views/workloads/manage/pod.tmpl",
 	)
 
 	router.Static("/public", "./public")
 	router.Static("/reference", "./reference")
+
+	router.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "404", gin.H{
+			"path": c.Request.URL.Path,
+		})
+	})
 
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{})
@@ -58,6 +67,14 @@ func main() {
 		c.HTML(http.StatusOK, "workloads/pods", gin.H{})
 	})
 
+	router.GET("/workloads/manage/pod", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "workloads/manage/pod", gin.H{})
+	})
+
+	router.GET("/workloads/manage/deployment", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "workloads/manage/deployment", gin.H{})
+	})
+
 	api := router.Group("/api")
 	{
 		api.GET("/config/sources", storage.GetSources)
@@ -71,7 +88,14 @@ func main() {
 		api.GET("/cluster/overview", clusterapi.ClusterOverviewHandler)
 		api.GET("/workloads/overview", clusterapi.WorkloadsOverviewHandler)
 		api.GET("/workloads/pods", clusterapi.PodsHandler)
+		api.GET("/workloads/pod", clusterapi.PodDetailHandler)
+		api.GET("/workloads/pod/logs", clusterapi.PodLogsHandler)
+		api.GET("/workloads/pod/events", clusterapi.PodEventsHandler)
+		api.GET("/workloads/pod/yaml", clusterapi.PodYAMLHandler)
 		api.GET("/workloads/deployments", clusterapi.DeploymentsHandler)
+		api.GET("/workloads/deployment", clusterapi.DeploymentDetailHandler)
+		api.GET("/workloads/deployment/events", clusterapi.DeploymentEventsHandler)
+		api.GET("/workloads/deployment/yaml", clusterapi.DeploymentYAMLHandler)
 	}
 
 	log.Println("Server running in release mode on http://localhost:3000")

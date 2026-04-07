@@ -10,7 +10,7 @@
 	padding: 10px 12px;
 	border: 1px solid var(--panel-border);
 	border-radius: 12px;
-	background: linear-gradient(180deg, rgba(38, 40, 45, 0.98), rgba(32, 34, 39, 0.96));
+	background: var(--panel-background);
 }
 
 .deployments-toolbar__left,
@@ -95,7 +95,7 @@
 	padding: 14px 16px;
 	border: 1px solid var(--panel-border);
 	border-radius: 14px;
-	background: linear-gradient(180deg, rgba(38, 40, 45, 0.98), rgba(32, 34, 39, 0.96));
+	background: var(--panel-background);
 }
 
 .deployments-table-panel__header {
@@ -112,13 +112,6 @@
 	border: 1px solid var(--panel-border);
 	color: var(--inactive-text);
 	font-size: 0.75rem;
-}
-
-.deployments-table-wrap {
-	overflow: auto;
-	border-radius: 12px;
-	border: 1px solid rgba(255, 255, 255, 0.05);
-	background: rgba(255, 255, 255, 0.02);
 }
 
 .deployments-table {
@@ -152,13 +145,22 @@
 	background: rgba(255, 255, 255, 0.03);
 }
 
+.deployments-table__row-link {
+	cursor: pointer;
+}
+
+.deployments-table__row-link:focus-visible {
+	outline: 2px solid var(--blue);
+	outline-offset: -2px;
+}
+
 .deployments-table tbody td:nth-child(1) {
 	color: var(--text-color);
 	font-weight: 600;
 }
 
 .deployments-table tbody td:nth-child(2) {
-	color: #8fb6ff;
+	color: #5b8cf3;
 	font-weight: 700;
 }
 

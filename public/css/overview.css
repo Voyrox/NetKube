@@ -375,7 +375,7 @@
 	padding: 14px 16px;
 	border: 1px solid var(--panel-border);
 	border-radius: 14px;
-	background: linear-gradient(180deg, rgba(38, 40, 45, 0.98), rgba(32, 34, 39, 0.96));
+	background: var(--panel-background);
 }
 
 .filter-control {
