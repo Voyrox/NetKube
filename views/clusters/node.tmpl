@@ -1,0 +1,76 @@
+{{ define "clusters/node" }}
+<!doctype html>
+<html>
+  <head>
+    <title>NetKube</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/public/logo/logo.png" />
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <link rel="stylesheet" href="/public/global.css" />
+    <link rel="stylesheet" href="/public/css/overview.css" />
+    <link rel="stylesheet" href="/public/css/deployments.css" />
+    <script src="/public/model/localStorage.js" defer></script>
+    <script src="/public/model/clusterApi.js" defer></script>
+    <script src="/public/model/clusterNodes.js" defer></script>
+        <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    {{ template "sidebar" . }}
+    <main class="main-content dashboard-page deployments-page">
+      <section class="dashboard-hero">
+        <div>
+          <p class="eyebrow">Cluster inventory</p>
+          <div class="hero-copy">
+            <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
+            <span class="hero-user" id="nodesHeroTitle">Nodes</span>
+          </div>
+        </div>
+
+        <div class="hero-meta">
+          <div class="meta-pill">
+            <span class="meta-label">Context</span>
+            <strong id="selectedContext">-</strong>
+          </div>
+          <div class="meta-pill">
+            <span class="meta-label">Last refresh</span>
+            <strong id="lastRefresh">just now</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="deployments-table-panel">
+        <div class="deployments-table-panel__header">
+          <div>
+            <p class="summary-kicker">Nodes</p>
+          </div>
+          <span class="table-hint" id="nodesTableCount">0 rows</span>
+        </div>
+
+        <div class="deployments-table-wrap" role="region" aria-label="Nodes table" tabindex="0">
+          <table class="deployments-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Role</th>
+                <th>Version</th>
+                <th>Internal IP</th>
+                <th>Age</th>
+              </tr>
+            </thead>
+            <tbody id="nodesTableBody">
+              <tr>
+                <td colspan="6">Loading nodes...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
+{{ end }}

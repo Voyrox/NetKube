@@ -31,6 +31,9 @@ func main() {
 		"views/404.tmpl",
 		"views/sidebar.tmpl",
 		"views/clusters/overview.tmpl",
+		"views/clusters/node.tmpl",
+		"views/clusters/details/node.tmpl",
+		"views/clusters/event.tmpl",
 		"views/workloads/overview.tmpl",
 		"views/workloads/deployments.tmpl",
 		"views/workloads/pods.tmpl",
@@ -53,6 +56,26 @@ func main() {
 
 	router.GET("/clusters/overview", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "clusters/overview", gin.H{})
+	})
+
+	router.GET("/clusters/node", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "clusters/node", gin.H{})
+	})
+
+	router.GET("/clusters/nodes", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "clusters/node", gin.H{})
+	})
+
+	router.GET("/clusters/details/node", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "clusters/details/node", gin.H{})
+	})
+
+	router.GET("/clusters/event", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "clusters/event", gin.H{})
+	})
+
+	router.GET("/clusters/events", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "clusters/event", gin.H{})
 	})
 
 	router.GET("/workloads/overview", func(c *gin.Context) {
@@ -86,6 +109,9 @@ func main() {
 		api.GET("/config/contexts", storage.GetContexts)
 
 		api.GET("/cluster/overview", clusterapi.ClusterOverviewHandler)
+		api.GET("/cluster/nodes", clusterapi.ClusterNodesHandler)
+		api.GET("/cluster/node", clusterapi.ClusterNodeDetailHandler)
+		api.GET("/cluster/event", clusterapi.ClusterEventDetailHandler)
 		api.GET("/workloads/overview", clusterapi.WorkloadsOverviewHandler)
 		api.GET("/workloads/pods", clusterapi.PodsHandler)
 		api.GET("/workloads/pod", clusterapi.PodDetailHandler)
