@@ -8,6 +8,10 @@
   --scrollbar-color: #303236;
   --panel-background: #26282d;
   --panel-border: #35383e;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
 }
 
 * {
@@ -17,7 +21,7 @@
 html,
 body {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
@@ -27,6 +31,11 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body.sidebar-open {
+  overflow: hidden;
 }
 
 a {
@@ -38,7 +47,6 @@ a {
   margin-left: 280px;
   min-height: 100vh;
   padding: 20px 24px;
-<<<<<<< HEAD
 }
 
 .mobile-topbar,
@@ -98,8 +106,10 @@ a {
   inset: 0;
   z-index: 39;
   background: rgba(5, 7, 10, 0.55);
-=======
->>>>>>> parent of 3190f1d (Iphone css update)
+}
+
+.sidebar-backdrop.is-visible {
+  display: block;
 }
 
 ::scroll-marker {
@@ -144,6 +154,10 @@ a {
   color: var(--blue);
   font-size: 1.2rem;
   letter-spacing: 0.3px;
+}
+
+.sidebar-close {
+  margin-left: auto;
 }
 
 .sidebar-nav {
@@ -271,20 +285,45 @@ a {
 }
 
 @media (max-width: 900px) {
+  .mobile-topbar,
+  .mobile-nav-toggle,
+  .sidebar-close,
+  .sidebar-backdrop {
+    display: flex;
+  }
+
+  .mobile-topbar {
+    display: flex;
+  }
+
+  .sidebar-backdrop {
+    display: none;
+  }
+
   .sidebar {
-    position: static;
-    width: 100%;
-    height: auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--panel-border);
+    z-index: 40;
+    width: min(88vw, 320px);
+    max-width: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    padding-top: calc(18px + var(--safe-area-top));
+    padding-bottom: calc(18px + var(--safe-area-bottom));
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
   }
 
   .main-content {
     margin-left: 0;
-<<<<<<< HEAD
     min-height: calc(100vh - 69px);
-=======
->>>>>>> parent of 3190f1d (Iphone css update)
     padding: 16px;
+    padding-bottom: calc(16px + var(--safe-area-bottom));
+  }
+}
+
+@media (min-width: 901px) {
+  .sidebar {
+    transform: none !important;
   }
 }

@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-height: calc(100vh - 40px);
   height: calc(100vh - 40px);
   overflow: hidden;
 }
@@ -99,9 +100,12 @@
   align-items: center;
   gap: 8px;
   padding: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .pod-tab {
+  flex: 0 0 auto;
   border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
@@ -504,6 +508,12 @@
   line-height: 1.45;
 }
 
+.pod-yaml-viewer,
+.pod-code-block,
+#podOverviewLogs {
+  max-width: 100%;
+}
+
 .pod-tab-panel[data-pod-panel="events"] .pod-events-list,
 .pod-tab-panel[data-deployment-panel="events"] .pod-events-list,
 .pod-tab-panel[data-pod-panel="yaml"] .pod-keyvalue-list,
@@ -629,6 +639,11 @@
     align-items: stretch;
   }
 
+  .pod-tabs {
+    flex-direction: row;
+    align-items: center;
+  }
+
   .pod-detail-list strong,
   .pod-keyvalue-item strong,
   .pod-collection-item__body strong {
@@ -654,12 +669,43 @@
   }
 
   .pod-tab {
-    width: 100%;
+    width: auto;
   }
 
   .pod-code-block,
   .pod-code-block--tall {
     min-height: 320px;
     max-height: 320px;
+  }
+
+  #podOverviewLogs {
+    white-space: pre-wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .pod-summary-card,
+  .pod-panel,
+  .pod-tabs {
+    padding: 12px;
+  }
+
+  .pod-detail-list--overview,
+  .pod-detail-list--compact,
+  .pod-collection--stacked,
+  .pod-collection-item__body,
+  .deployment-detail-list,
+  .deployment-tag-list {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .pod-code-block,
+  .pod-code-block--tall {
+    min-height: 260px;
+    max-height: 260px;
+  }
+
+  .pod-yaml-viewer {
+    max-height: 50vh;
   }
 }

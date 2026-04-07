@@ -153,9 +153,11 @@ button[type="submit"]:disabled {
 @media (max-width: 600px) {
 	.container {
 		padding: 16px;
+		align-items: stretch;
 	}
 
 	.login-shell {
+		width: 100%;
 		padding: 22px;
 		border-radius: 12px;
 	}

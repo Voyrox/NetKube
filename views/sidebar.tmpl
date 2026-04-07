@@ -1,8 +1,21 @@
 {{ define "sidebar" }}
+<div class="mobile-topbar">
+    <button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation">
+        <i class="fa fa-bars" aria-hidden="true"></i>
+    </button>
+    <a class="mobile-topbar__brand" href="/" aria-label="NetKube home">
+        <img src="/public/logo/logo.png" alt="NetKube Logo" />
+        <span><span>Net</span><span class="mobile-topbar__accent">Kube</span></span>
+    </a>
+</div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <img src="/public/logo/logo.png" alt="NetKube Logo" />
         <h2><a style="color: #fff;" href="/">Net</a><span style="color: #4a8bff;">Kube</span></h2>
+        <button class="sidebar-close" id="sidebarClose" type="button" aria-label="Close navigation">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
     </div>
     <nav class="sidebar-nav">
         <div class="nav-dropdown open">
@@ -85,8 +98,71 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        var sidebar = document.getElementById("sidebar");
+        var mobileNavToggle = document.getElementById("mobileNavToggle");
+        var sidebarClose = document.getElementById("sidebarClose");
+        var sidebarBackdrop = document.getElementById("sidebarBackdrop");
         var dropdowns = document.querySelectorAll(".sidebar .nav-dropdown");
         var currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+        var mobileNavMedia = window.matchMedia("(max-width: 900px)");
+
+        function setSidebarOpen(isOpen) {
+            if (!sidebar) {
+                return;
+            }
+
+            sidebar.classList.toggle("is-open", isOpen);
+            document.body.classList.toggle("sidebar-open", isOpen && mobileNavMedia.matches);
+
+            if (mobileNavToggle) {
+                mobileNavToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            }
+
+            if (sidebarBackdrop) {
+                sidebarBackdrop.hidden = !isOpen;
+                sidebarBackdrop.classList.toggle("is-visible", isOpen);
+            }
+        }
+
+        function closeSidebar() {
+            setSidebarOpen(false);
+        }
+
+        function handleViewportChange(event) {
+            if (!event.matches) {
+                document.body.classList.remove("sidebar-open");
+                if (sidebarBackdrop) {
+                    sidebarBackdrop.hidden = true;
+                    sidebarBackdrop.classList.remove("is-visible");
+                }
+                if (sidebar) {
+                    sidebar.classList.remove("is-open");
+                }
+                if (mobileNavToggle) {
+                    mobileNavToggle.setAttribute("aria-expanded", "false");
+                }
+            }
+        }
+
+        if (mobileNavToggle) {
+            mobileNavToggle.addEventListener("click", function () {
+                setSidebarOpen(!sidebar.classList.contains("is-open"));
+            });
+        }
+
+        if (sidebarClose) {
+            sidebarClose.addEventListener("click", closeSidebar);
+        }
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener("click", closeSidebar);
+        }
+
+        if (typeof mobileNavMedia.addEventListener === "function") {
+            mobileNavMedia.addEventListener("change", handleViewportChange);
+        } else if (typeof mobileNavMedia.addListener === "function") {
+            mobileNavMedia.addListener(handleViewportChange);
+        }
 
         dropdowns.forEach(function (dropdown) {
             var button = dropdown.querySelector(".nav-dropdown-btn");
@@ -109,6 +185,12 @@
                     return;
                 }
 
+                link.addEventListener("click", function () {
+                    if (mobileNavMedia.matches) {
+                        closeSidebar();
+                    }
+                });
+
                 var linkPath = new URL(href, window.location.origin).pathname.replace(/\/+$/, "") || "/";
                 var activePrefixes = (link.getAttribute("data-active-prefixes") || "")
                     .split(",")
@@ -130,6 +212,8 @@
                 }
             });
         });
+
+        handleViewportChange(mobileNavMedia);
     });
 </script>
 {{ end }}

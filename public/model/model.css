@@ -7,6 +7,7 @@
   justify-content: center;
   padding: 24px;
   z-index: 1000;
+  overflow-y: auto;
 }
 
 .modalOverlay.open {
@@ -16,11 +17,13 @@
 .setupModalCard {
   width: 100%;
   max-width: 760px;
+  max-height: min(100vh - 48px, 900px);
   background: #26282d;
   border: 1px solid #35383e;
   border-radius: 16px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
   padding: 24px;
+  overflow: auto;
 }
 
 .setupModalHeader {
@@ -223,10 +226,16 @@
 @media (max-width: 640px) {
   .setupModalCard {
     padding: 18px;
+    max-height: none;
   }
 
   .setupActions {
     flex-direction: column;
+  }
+
+  .setupPathInput {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .setupActionButton {
@@ -236,5 +245,10 @@
 
   .setupSourceItem {
     align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .deleteSourceButton {
+    margin-left: auto;
   }
 }

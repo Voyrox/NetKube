@@ -219,3 +219,25 @@
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 }
+
+@media (max-width: 640px) {
+  .cluster-panel,
+  .cluster-summary-card {
+    padding: 12px;
+  }
+
+  .cluster-kv-list div,
+  .cluster-timeline-item,
+  .cluster-fact-card,
+  .cluster-tag-list li,
+  .cluster-note,
+  .cluster-empty {
+    padding: 10px 12px;
+  }
+
+  .cluster-summary-card__grid,
+  .cluster-fact-grid,
+  .cluster-tag-list {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
