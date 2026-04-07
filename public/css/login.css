@@ -1,0 +1,263 @@
+.container {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+}
+
+.signup-box,
+.login-box {
+	width: min(100%, 440px);
+	border: 1px solid var(--panel-border);
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+	background-color: var(--panel-background);
+	border-radius: 14px;
+	padding: 28px;
+	box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+}
+
+.auth-banner {
+	display: block;
+	width: min(100%, 280px);
+	height: auto;
+	margin: 0 auto 18px;
+}
+
+.signup-box {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.is-hidden {
+	display: none;
+}
+
+.signup-box h2,
+.login-box h2 {
+	margin: 0 0 8px;
+	font-size: 1.75rem;
+	line-height: 1.2;
+}
+
+.signup-box p {
+	margin: 0 0 18px;
+	color: var(--inactive-text);
+	font-size: 1rem;
+}
+
+.signup-box ul {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.signup-box li {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--text-color);
+	font-size: 0.96rem;
+}
+
+.signup-box .fa-check {
+	color: var(--blue);
+}
+
+.separator {
+	position: relative;
+	text-align: center;
+	margin: 18px 0;
+	color: var(--inactive-text);
+	font-size: 0.88rem;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.separator::before,
+.separator::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	width: 42%;
+	height: 1px;
+	background: var(--panel-border);
+}
+
+.separator::before {
+	left: 0;
+}
+
+.separator::after {
+	right: 0;
+}
+
+#signupForm,
+#loginForm {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.input-group label {
+	font-size: 0.9rem;
+	color: var(--inactive-text);
+}
+
+.input-group input {
+	width: 100%;
+	border: 1px solid var(--panel-border);
+	background-color: #1d1f23;
+	color: var(--text-color);
+	border-radius: 8px;
+	padding: 11px 12px;
+	font-size: 0.95rem;
+	outline: 0;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease,
+		background-color 0.2s ease;
+}
+
+.input-group input:focus {
+	border-color: var(--blue);
+	box-shadow: 0 0 0 3px rgba(50, 108, 229, 0.22);
+	background-color: #181a1d;
+}
+
+button[type="submit"],
+.oauth-btn {
+	width: 100%;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	padding: 11px 12px;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: var(--text-color);
+	cursor: pointer;
+	transition:
+		transform 0.15s ease,
+		border-color 0.2s ease,
+		background-color 0.2s ease,
+		opacity 0.2s ease;
+}
+
+button[type="submit"] {
+	background-color: var(--blue);
+}
+
+button[type="submit"]:hover {
+	background-color: #2b5fca;
+	transform: translateY(-1px);
+}
+
+button[type="submit"]:active,
+.oauth-btn:active {
+	transform: translateY(0);
+}
+
+.oauth-buttons {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.oauth-btn {
+	background-color: #1f2227;
+	border-color: var(--panel-border);
+	padding: 10px 8px;
+	font-size: 0.88rem;
+}
+
+.oauth-btn:hover {
+	background-color: #272a30;
+	border-color: #4b4f58;
+}
+
+.oauth-btn .fa {
+	margin-right: 8px;
+}
+
+.oauth-btn.github:hover {
+	border-color: #7f8795;
+}
+
+.oauth-btn.google:hover {
+	border-color: #e26952;
+}
+
+.oauth-btn.apple:hover {
+	border-color: #a5acb7;
+}
+
+.options {
+	margin-top: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.options a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	background-color: var(--blue);
+	border: 1px solid transparent;
+	border-radius: 8px;
+	padding: 11px 12px;
+	font-size: 0.92rem;
+	font-weight: 600;
+	color: var(--text-color);
+	transition:
+		background-color 0.2s ease,
+		transform 0.15s ease;
+}
+
+.options a:hover {
+	background-color: #2b5fca;
+	transform: translateY(-1px);
+}
+
+.options .fa {
+	margin-right: 8px;
+	color: var(--text-color);
+}
+
+@media (max-width: 980px) {
+	.container {
+		padding: 20px;
+	}
+}
+
+@media (max-width: 600px) {
+	.container {
+		padding: 16px;
+	}
+
+	.signup-box,
+	.login-box {
+		padding: 18px;
+		border-radius: 10px;
+	}
+
+	.signup-box h2,
+	.login-box h2 {
+		font-size: 1.45rem;
+	}
+
+	.oauth-btn {
+		padding: 10px 6px;
+		font-size: 0.8rem;
+	}
+}

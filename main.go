@@ -28,6 +28,7 @@ func main() {
 
 	router.LoadHTMLFiles(
 		"views/index.tmpl",
+		"views/login.tmpl",
 		"views/404.tmpl",
 		"views/sidebar.tmpl",
 		"views/clusters/overview.tmpl",
@@ -55,6 +56,10 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{})
+	})
+
+	router.GET("/login", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "login.tmpl", gin.H{})
 	})
 
 	router.GET("/clusters/overview", func(c *gin.Context) {

@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+config
+deploy
+README.md
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out

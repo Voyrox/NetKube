@@ -82,15 +82,16 @@
         </nav>
 
         <section class="pod-tab-panel pod-tab-panel--active" data-pod-panel="overview">
-          <section class="pod-panel">
-            <div class="pod-panel__header">
+          <section class="pod-panel pod-panel--overview">
+            <div class="pod-panel__header pod-panel__header--overview">
               <div>
                 <p class="summary-kicker">Overview</p>
                 <h3>Pod details</h3>
               </div>
+              <span class="table-hint">Live workload snapshot</span>
             </div>
 
-            <div class="pod-detail-list">
+            <div class="pod-detail-list pod-detail-list--overview">
               <div><span>Phase</span><strong id="podPhase">-</strong></div>
               <div><span>Service account</span><strong id="podServiceAccount">-</strong></div>
               <div><span>QoS class</span><strong id="podQosClass">-</strong></div>
@@ -101,7 +102,7 @@
               <div><span>Restart reason</span><strong id="podLastRestartReason">-</strong></div>
             </div>
 
-            <div class="pod-panel__header pod-panel__header--spaced">
+            <div class="pod-panel__header pod-panel__header--spaced pod-panel__header--section">
               <div>
                 <p class="summary-kicker">Runtime</p>
                 <h3>Containers</h3>
@@ -109,18 +110,18 @@
               <span class="table-hint" id="podContainersCount">0 containers</span>
             </div>
 
-            <div class="pod-collection" id="podContainersList">
+            <div class="pod-collection pod-collection--stacked" id="podContainersList">
               <p class="pod-empty">Loading containers...</p>
             </div>
 
-            <div class="pod-panel__header pod-panel__header--spaced">
+            <div class="pod-panel__header pod-panel__header--spaced pod-panel__header--section">
               <div>
                 <p class="summary-kicker">Signals</p>
                 <h3>Conditions</h3>
               </div>
             </div>
 
-            <div class="pod-collection" id="podConditionsList">
+            <div class="pod-collection pod-collection--stacked" id="podConditionsList">
               <p class="pod-empty">Loading conditions...</p>
             </div>
           </section>

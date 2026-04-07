@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <title>NetKube</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="public/logo/logo.png" />
+    <link rel="stylesheet" href="public/global.css" />
+    <link rel="stylesheet" href="public/css/login.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script src="public/model/localStorage.js" defer></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="signup-box is-hidden" id="signupBox">
+        <img class="auth-banner" src="public/logo/banner.png" alt="NetKube" />
+        <h2>Welcome!</h2>
+        <p>Your all-in-one Kubernetes management solution.</p>
+        <ul>
+          <li><i class="fa fa-check"></i> Manage multiple clusters with ease</li>
+          <li><i class="fa fa-check"></i> Real-time monitoring and alerts</li>
+          <li><i class="fa fa-check"></i> Seamless integration with your favorite tools</li>
+            <li><i class="fa fa-check"></i> Secure and reliable access control</li>
+        </ul>
+        <div class="separator">or</div>
+        <form id="signupForm">
+          <div class="input-group">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" name="email" required />
+          </div>
+          <div class="input-group">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" name="password" required />
+          </div>
+          <button type="submit">Sign Up</button>
+        </form>
+        <div class="options">
+          <a id="showLogin" href="#"><i class="fa fa-sign-in"></i> Back to Login</a>
+        </div>
+      </div>
+      <div class="login-box" id="loginBox">
+        <img class="auth-banner" src="public/logo/banner.png" alt="NetKube" />
+        <h2>Login</h2>
+        <form id="loginForm">
+          <div class="input-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" name="email" required />
+          </div>
+          <div class="input-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" required />
+          </div>
+          <button type="submit">Login</button>
+        </form>
+        <div class="separator">or</div>
+        <div class="oauth-buttons">
+          <button id="githubLogin" class="oauth-btn github">
+            <i class="fa fa-github"></i> GitHub
+          </button>
+          <button id="googleLogin" class="oauth-btn google">
+            <i class="fa fa-google"></i> Google
+          </button>
+          <button id="appleLogin" class="oauth-btn apple">
+            <i class="fa fa-apple"></i> Apple
+          </button>
+          </div>
+          <div class="options">
+            <a href="/sso"><i class="fa fa-lock"></i> Continue with SSO</a>
+            <a id="showSignup" href="#"><i class="fa fa-user-plus"></i> Don't have an account? Sign up</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/public/model/login.js" defer></script>
+  </body>
+</html>

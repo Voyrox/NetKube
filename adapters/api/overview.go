@@ -14,53 +14,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type overviewMetric struct {
-	Total   int    `json:"total"`
-	Primary int    `json:"primary"`
-	Warning int    `json:"warning"`
-	Danger  int    `json:"danger"`
-	Status  string `json:"status"`
-}
-
-type clusterOverviewResponse struct {
-	Meta              pageMeta       `json:"meta"`
-	Nodes             overviewMetric `json:"nodes"`
-	PersistentVolumes overviewMetric `json:"persistentVolumes"`
-	CustomResources   overviewMetric `json:"customResources"`
-	ResourceUsage     resourceUsage  `json:"resourceUsage"`
-	Warnings          []warningEvent `json:"warnings"`
-}
-
-type resourceUsageMetric struct {
-	Percent float64 `json:"percent"`
-	Used    string  `json:"used"`
-	Total   string  `json:"total"`
-}
-
-type resourceUsageSection struct {
-	CPU    resourceUsageMetric `json:"cpu"`
-	Memory resourceUsageMetric `json:"memory"`
-	Pods   resourceUsageMetric `json:"pods,omitempty"`
-}
-
-type resourceUsage struct {
-	UsageCapacity    resourceUsageSection `json:"usageCapacity"`
-	RequestsAllocate resourceUsageSection `json:"requestsAllocate"`
-}
-
-type workloadsOverviewResponse struct {
-	Meta           pageMeta       `json:"meta"`
-	Pods           overviewMetric `json:"pods"`
-	Deployments    overviewMetric `json:"deployments"`
-	ReplicaSets    overviewMetric `json:"replicaSets"`
-	DaemonSets     overviewMetric `json:"daemonSets"`
-	StatefulSets   overviewMetric `json:"statefulSets"`
-	CronJobs       overviewMetric `json:"cronJobs"`
-	Jobs           overviewMetric `json:"jobs"`
-	ResourceQuotas overviewMetric `json:"resourceQuotas"`
-	Warnings       []warningEvent `json:"warnings"`
-}
-
 func ClusterOverviewHandler(c *gin.Context) {
 	cluster, ok := resolveClusterRequest(c)
 	if !ok {

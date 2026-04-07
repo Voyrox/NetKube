@@ -9,7 +9,7 @@
             <button class="nav-dropdown-btn" type="button" aria-expanded="true"><i class="fa fa-sitemap" aria-hidden="true"></i><span>Clusters</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
                 <a href="/clusters/overview">Overview</a>
-                <a href="/clusters/nodes">Nodes</a>
+                <a href="/clusters/nodes" data-active-prefixes="/clusters/details/node">Nodes</a>
                 <a href="/clusters/events">Events</a>
                 <a href="/clusters/namespaces">Namespaces</a>
                 <a href="/clusters/leases">Leases</a>
@@ -19,8 +19,8 @@
             <button class="nav-dropdown-btn" type="button" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i><span>Workloads</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
                 <a href="/workloads/overview">Overview</a>
-                <a href="/workloads/deployments">Deployments</a>
-                <a href="/workloads/pods">Pods</a>
+                <a href="/workloads/deployments" data-active-prefixes="/workloads/manage/deployment">Deployments</a>
+                <a href="/workloads/pods" data-active-prefixes="/workloads/manage/pod">Pods</a>
                 <a href="#">Replicasets</a>
                 <a href="#">Daemonsets</a>
                 <a href="#">Statefulsets</a>
@@ -110,7 +110,19 @@
                 }
 
                 var linkPath = new URL(href, window.location.origin).pathname.replace(/\/+$/, "") || "/";
-                if (linkPath === currentPath) {
+                var activePrefixes = (link.getAttribute("data-active-prefixes") || "")
+                    .split(",")
+                    .map(function (prefix) {
+                        return prefix.trim().replace(/\/+$/, "");
+                    })
+                    .filter(Boolean);
+
+                var isDirectMatch = linkPath === currentPath;
+                var isPrefixMatch = activePrefixes.some(function (prefix) {
+                    return currentPath === prefix || currentPath.indexOf(prefix + "/") === 0;
+                });
+
+                if (isDirectMatch || isPrefixMatch) {
                     link.classList.add("is-active");
                     link.setAttribute("aria-current", "page");
                     dropdown.classList.add("open");
