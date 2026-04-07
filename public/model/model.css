@@ -38,8 +38,8 @@
 }
 
 .closeModalButton {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 1px solid #3f434b;
   border-radius: 10px;
   background: transparent;
@@ -221,7 +221,16 @@
 }
 
 @media (max-width: 640px) {
+  .modalOverlay {
+    align-items: stretch;
+    padding: 0;
+  }
+
   .setupModalCard {
+    max-width: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    border-radius: 0;
     padding: 18px;
   }
 
@@ -236,5 +245,18 @@
 
   .setupSourceItem {
     align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .setupPathInput,
+  .setupModalHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .setupPathInput input,
+  .setupActionButton,
+  .deleteSourceButton {
+    width: 100%;
   }
 }

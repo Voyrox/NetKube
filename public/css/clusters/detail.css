@@ -203,6 +203,15 @@
     overflow: visible;
   }
 
+  .cluster-summary-card,
+  .cluster-panel,
+  .cluster-timeline-item,
+  .cluster-fact-card,
+  .cluster-kv-list div,
+  .cluster-tag-list li {
+    border-radius: 14px;
+  }
+
   .cluster-kv-list div,
   .cluster-timeline-top,
   .cluster-panel__header {
@@ -217,5 +226,20 @@
 
   .cluster-tag-list {
     grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 430px) {
+  .cluster-panel,
+  .cluster-summary-card {
+    padding: 12px;
+  }
+
+  .cluster-summary-card__grid,
+  .cluster-fact-grid,
+  .cluster-kv-list,
+  .cluster-tag-list,
+  .cluster-timeline {
+    gap: 8px;
   }
 }

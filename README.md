@@ -6,6 +6,8 @@ It provides a lightweight web interface for inspecting cluster resources, switch
 
 Create a `.env` file before starting the app. NetKube requires `EMAIL` (or legacy `USERNAME`) and `PASSWORD` for login. If `SESSION_SECRET` is not set, NetKube generates and persists one automatically under `config/session_secret`.
 
+If port `3000` is already in use, set `PORT` in `.env` to another port, such as `PORT="3001"`.
+
 ## What does it look like?
 <table>
 	<tr>
