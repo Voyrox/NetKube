@@ -166,6 +166,57 @@ type deploymentsStats struct {
 	Total   int `json:"total"`
 }
 
+type replicaSetRow struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Ready     string `json:"ready"`
+	Status    string `json:"status"`
+	Desired   int32  `json:"desired"`
+	Current   int32  `json:"current"`
+	ReadyPods int32  `json:"readyPods"`
+	Age       string `json:"age"`
+}
+
+type replicaSetsResponse struct {
+	Meta  pageMeta         `json:"meta"`
+	Items []replicaSetRow  `json:"items"`
+	Count int              `json:"count"`
+	Stats replicaSetsStats `json:"stats"`
+}
+
+type replicaSetsStats struct {
+	Healthy int `json:"healthy"`
+	Warning int `json:"warning"`
+	Pending int `json:"pending"`
+	Total   int `json:"total"`
+}
+
+type daemonSetRow struct {
+	Namespace    string `json:"namespace"`
+	Name         string `json:"name"`
+	Ready        string `json:"ready"`
+	Status       string `json:"status"`
+	Desired      int32  `json:"desired"`
+	Current      int32  `json:"current"`
+	Available    int32  `json:"available"`
+	Misscheduled int32  `json:"misscheduled"`
+	Age          string `json:"age"`
+}
+
+type daemonSetsResponse struct {
+	Meta  pageMeta        `json:"meta"`
+	Items []daemonSetRow  `json:"items"`
+	Count int             `json:"count"`
+	Stats daemonSetsStats `json:"stats"`
+}
+
+type daemonSetsStats struct {
+	Healthy int `json:"healthy"`
+	Warning int `json:"warning"`
+	Pending int `json:"pending"`
+	Total   int `json:"total"`
+}
+
 type deploymentConditionRow struct {
 	Type    string `json:"type"`
 	Status  string `json:"status"`

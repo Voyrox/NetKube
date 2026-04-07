@@ -68,6 +68,8 @@ func main() {
 		"views/workloads/overview.tmpl",
 		"views/workloads/deployments.tmpl",
 		"views/workloads/pods.tmpl",
+		"views/workloads/replicasets.tmpl",
+		"views/workloads/daemonsets.tmpl",
 		"views/workloads/manage/deployment.tmpl",
 		"views/workloads/manage/pod.tmpl",
 	)
@@ -170,6 +172,14 @@ func main() {
 		c.HTML(http.StatusOK, "workloads/pods", gin.H{})
 	})
 
+	router.GET("/workloads/replicasets", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "workloads/replicasets", gin.H{})
+	})
+
+	router.GET("/workloads/daemonsets", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "workloads/daemonsets", gin.H{})
+	})
+
 	router.GET("/workloads/manage/pod", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "workloads/manage/pod", gin.H{})
 	})
@@ -199,6 +209,8 @@ func main() {
 		api.GET("/networking/services", clusterapi.NetworkingServicesHandler)
 		api.GET("/workloads/overview", clusterapi.WorkloadsOverviewHandler)
 		api.GET("/workloads/pods", clusterapi.PodsHandler)
+		api.GET("/workloads/replicasets", clusterapi.ReplicaSetsHandler)
+		api.GET("/workloads/daemonsets", clusterapi.DaemonSetsHandler)
 		api.GET("/workloads/pod", clusterapi.PodDetailHandler)
 		api.GET("/workloads/pod/logs", clusterapi.PodLogsHandler)
 		api.GET("/workloads/pod/events", clusterapi.PodEventsHandler)
