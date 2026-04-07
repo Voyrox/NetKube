@@ -452,7 +452,7 @@ func shouldUseSecureCookies(c *gin.Context) bool {
 		return true
 	}
 
-	return !isLocalHost(c.Request.Host)
+	return false
 }
 
 func sameHost(left, right string) bool {

@@ -43,7 +43,7 @@ spec:
       containers:
         - name: netkube
           image: glitchedking/netkube:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: netkube-auth
