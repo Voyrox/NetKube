@@ -42,8 +42,7 @@ a {
 .main-content {
   margin-left: 280px;
   min-height: 100vh;
-  width: calc(100% - 280px);
-  padding: calc(20px + var(--safe-area-top)) calc(24px + var(--safe-area-right)) calc(20px + var(--safe-area-bottom)) calc(24px + var(--safe-area-left));
+  padding: 20px 24px;
 }
 
 .mobile-topbar,
@@ -308,7 +307,6 @@ a {
 
   .main-content {
     margin-left: 0;
-    width: 100%;
     min-height: calc(100vh - 69px);
     padding: 16px;
     padding-bottom: calc(16px + var(--safe-area-bottom));
