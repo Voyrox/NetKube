@@ -137,8 +137,18 @@ func formatDuration(duration time.Duration) string {
 		return fmt.Sprintf("%dm", int(duration.Minutes()))
 	}
 	if duration < 24*time.Hour {
-		return fmt.Sprintf("%dh", int(duration.Hours()))
+		hours := int(duration.Hours())
+		minutes := int(duration.Minutes()) % 60
+		if minutes == 0 {
+			return fmt.Sprintf("%dh", hours)
+		}
+		return fmt.Sprintf("%dh %dm", hours, minutes)
 	}
 
-	return fmt.Sprintf("%dd", int(duration.Hours()/24))
+	days := int(duration.Hours()) / 24
+	hours := int(duration.Hours()) % 24
+	if hours == 0 {
+		return fmt.Sprintf("%dd", days)
+	}
+	return fmt.Sprintf("%dd %dh", days, hours)
 }
