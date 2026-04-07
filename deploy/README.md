@@ -13,7 +13,11 @@ docker build -t netkube:latest .
 Run it locally:
 
 ```bash
-docker run --rm -p 3000:3000 -v netkube-config:/app/config netkube:latest
+docker run --rm -p 3000:3000 \
+  -e EMAIL="admin@example.com" \
+  -e PASSWORD="change-me" \
+  -e SESSION_SECRET="change-me" \
+  -v netkube-config:/app/config netkube:latest
 ```
 
 Open `http://localhost:3000`.
@@ -22,7 +26,8 @@ Open `http://localhost:3000`.
 
 1. Build and push the image to a registry your cluster can pull from.
 2. Update the image value in `deploy/kubernetes/deployment.yaml`.
-3. Apply the manifests.
+3. Set the login credentials in `deploy/kubernetes/secret.yaml`.
+4. Apply the manifests.
 
 Example:
 
@@ -30,6 +35,7 @@ Example:
 docker build -t <registry>/netkube:latest .
 docker push <registry>/netkube:latest
 kubectl apply -f deploy/kubernetes/namespace.yaml
+kubectl apply -f deploy/kubernetes/secret.yaml
 kubectl apply -f deploy/kubernetes/pvc.yaml
 kubectl apply -f deploy/kubernetes/deployment.yaml
 kubectl apply -f deploy/kubernetes/service.yaml
@@ -42,4 +48,5 @@ Then open `http://localhost:3000`.
 
 - The app stores uploaded kubeconfig files and selected contexts in `/app/config`.
 - `deploy/kubernetes/pvc.yaml` creates persistent storage for that data.
+- `deploy/kubernetes/secret.yaml` provides the required `EMAIL`, `PASSWORD`, and `SESSION_SECRET` environment variables.
 - The default service is `ClusterIP`, so `kubectl port-forward` is the easiest first way to access it.

@@ -17,6 +17,9 @@ spec:
         - name: netkube
           image: netkube:latest
           imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: netkube-auth
           ports:
             - containerPort: 3000
               name: http
