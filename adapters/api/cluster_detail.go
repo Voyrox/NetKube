@@ -503,6 +503,9 @@ func servicePorts(service corev1.Service) string {
 		if port.TargetPort.String() != "" {
 			part += " -> " + port.TargetPort.String()
 		}
+		if strings.TrimSpace(port.Name) != "" {
+			part += " (" + port.Name + ")"
+		}
 		parts = append(parts, part)
 	}
 	return strings.Join(parts, ", ")

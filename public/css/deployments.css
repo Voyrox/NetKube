@@ -252,6 +252,29 @@
 	font-weight: 700;
 }
 
+.service-port-entry {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	flex-wrap: wrap;
+	line-height: 1.35;
+}
+
+.service-port-entry + .service-port-entry {
+	margin-top: 4px;
+}
+
+.service-port-entry__value {
+	color: var(--text-color);
+	font-weight: 600;
+}
+
+.service-port-entry__meta {
+	color: var(--inactive-text);
+	font-size: 0.72rem;
+	font-weight: 500;
+}
+
 @media (max-width: 1200px) {
 	.deployment-summary-grid {
 		grid-template-columns: repeat(1, minmax(0, 1fr));
