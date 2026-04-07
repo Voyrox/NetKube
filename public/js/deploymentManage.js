@@ -254,33 +254,7 @@ function renderYAMLContent(id, value) {
   const element = document.getElementById(id);
   if (!element) return;
 
-  const lines = String(value || "").replace(/\r\n/g, "\n").split("\n");
-  element.innerHTML = lines.map((line, index) => `<div class="pod-yaml-line"><span class="pod-yaml-line-number">${index + 1}</span><span class="pod-yaml-line-content">${highlightYAML(line)}</span></div>`).join("");
-}
-
-function highlightYAML(line) {
-  const escaped = escapeHtml(line).replace(/ /g, "&nbsp;");
-  if (!escaped.trim()) return "&nbsp;";
-  if (escaped.trimStart().startsWith("#")) return `<span class="pod-yaml-comment">${escaped}</span>`;
-
-  const keyMatch = escaped.match(/^(\s*-\s*)?([^:&][^:]*?):\s*(.*)$/);
-  if (!keyMatch) return highlightYAMLValue(escaped);
-
-  const prefix = keyMatch[1] || "";
-  const key = keyMatch[2] || "";
-  const value = keyMatch[3] || "";
-  return `${prefix}<span class="pod-yaml-key">${key}</span>:${value ? ` ${highlightYAMLValue(value)}` : ""}`;
-}
-
-function highlightYAMLValue(value) {
-  const trimmed = value.replace(/&nbsp;/g, " ").trim();
-  if (!trimmed) return value;
-
-  const unquoted = trimmed.replace(/^"|"$/g, "");
-  if (/^\d{4}-\d{2}-\d{2}t\d{2}:\d{2}:\d{2}(?:\.\d+)?z$/i.test(unquoted)) return `<span class="pod-yaml-timestamp">${value}</span>`;
-  if (/^(true|false|null)$/i.test(trimmed)) return `<span class="pod-yaml-boolean">${value}</span>`;
-  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `<span class="pod-yaml-number">${value}</span>`;
-  return `<span class="pod-yaml-string">${value}</span>`;
+  element.innerHTML = window.NetKubeYaml?.renderHighlightedYaml(value) || "";
 }
 
 function renderDeploymentError(message) {

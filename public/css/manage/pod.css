@@ -482,55 +482,6 @@
   line-height: 1.45;
 }
 
-.pod-yaml-line {
-  display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
-  gap: 12px;
-  padding: 0 12px;
-  min-height: 22px;
-}
-
-.pod-yaml-line-number {
-  padding: 3px 0;
-  color: var(--inactive-text);
-  text-align: right;
-  user-select: none;
-  border-right: 1px solid var(--panel-border);
-  padding-right: 10px;
-}
-
-.pod-yaml-line-content {
-  display: block;
-  padding: 3px 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-  color: var(--text-color);
-}
-
-.pod-yaml-key {
-  color: #3dab6b;
-}
-
-.pod-yaml-string {
-  color: #ce7646;
-}
-
-.pod-yaml-number {
-  color: #b5af67;
-}
-
-.pod-yaml-boolean {
-  color: #2758b5;
-}
-
-.pod-yaml-timestamp {
-  color: #b5af67;
-}
-
-.pod-yaml-comment {
-  color: var(--inactive-text);
-}
-
 
 .pod-event-item__meta {
   align-items: center;

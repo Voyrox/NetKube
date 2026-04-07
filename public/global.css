@@ -90,6 +90,52 @@ a {
   gap: 8px;
 }
 
+.nk-yaml-line {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 12px;
+  padding: 0 12px;
+  min-height: 22px;
+}
+
+.nk-yaml-line-number {
+  padding: 3px 0;
+  padding-right: 10px;
+  color: var(--inactive-text);
+  text-align: right;
+  user-select: none;
+  border-right: 1px solid var(--panel-border);
+}
+
+.nk-yaml-line-content {
+  display: block;
+  padding: 3px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-color);
+}
+
+.nk-yaml-key {
+  color: #3dab6b;
+}
+
+.nk-yaml-string {
+  color: #ce7646;
+}
+
+.nk-yaml-number,
+.nk-yaml-timestamp {
+  color: #b5af67;
+}
+
+.nk-yaml-boolean {
+  color: #5b8cf3;
+}
+
+.nk-yaml-comment {
+  color: var(--inactive-text);
+}
+
 .nav-dropdown {
   border: 1px solid transparent;
   border-radius: 8px;

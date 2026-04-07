@@ -210,8 +210,7 @@ function renderYamlDrawerContent(id, value) {
   if (!element) return;
 
   element.classList.add("resource-drawer__content--yaml");
-  const lines = String(value || "").replace(/\r\n/g, "\n").split("\n");
-  element.innerHTML = lines.map((line, index) => `<div class="resource-drawer__yaml-line"><span class="resource-drawer__yaml-number">${index + 1}</span><span class="resource-drawer__yaml-content">${highlightYamlDrawerLine(line)}</span></div>`).join("");
+  element.innerHTML = window.NetKubeYaml?.renderHighlightedYaml(value) || "";
 }
 
 function setDrawerText(id, value) {
@@ -220,29 +219,4 @@ function setDrawerText(id, value) {
 
   element.classList.remove("resource-drawer__content--yaml");
   element.textContent = value;
-}
-
-function highlightYamlDrawerLine(line) {
-  const escaped = escapeHtml(line).replace(/ /g, "&nbsp;");
-  if (!escaped.trim()) return "&nbsp;";
-  if (escaped.trimStart().startsWith("#")) return `<span class="resource-drawer__yaml-comment">${escaped}</span>`;
-
-  const keyMatch = escaped.match(/^(\s*-\s*)?([^:&][^:]*?):\s*(.*)$/);
-  if (!keyMatch) return highlightYamlDrawerValue(escaped);
-
-  const prefix = keyMatch[1] || "";
-  const key = keyMatch[2] || "";
-  const value = keyMatch[3] || "";
-  return `${prefix}<span class="resource-drawer__yaml-key">${key}</span>:${value ? ` ${highlightYamlDrawerValue(value)}` : ""}`;
-}
-
-function highlightYamlDrawerValue(value) {
-  const trimmed = value.replace(/&nbsp;/g, " ").trim();
-  if (!trimmed) return value;
-
-  const unquoted = trimmed.replace(/^"|"$/g, "");
-  if (/^\d{4}-\d{2}-\d{2}t\d{2}:\d{2}:\d{2}(?:\.\d+)?z$/i.test(unquoted)) return `<span class="resource-drawer__yaml-timestamp">${value}</span>`;
-  if (/^(true|false|null)$/i.test(trimmed)) return `<span class="resource-drawer__yaml-boolean">${value}</span>`;
-  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `<span class="resource-drawer__yaml-number-token">${value}</span>`;
-  return `<span class="resource-drawer__yaml-string">${value}</span>`;
 }
