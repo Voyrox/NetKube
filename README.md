@@ -1,6 +1,22 @@
 # NetKube
 
-Create a `.env` file before starting the app. NetKube requires `EMAIL` (or legacy `USERNAME`), `PASSWORD`, and optionally `SESSION_SECRET` for login.
+NetKube is a simple Kubernetes dashboard for viewing cluster health, nodes, pods, deployments, services, and multi-context kubeconfig data.
+
+It provides a lightweight web interface for inspecting cluster resources, switching between stored kubeconfig contexts, and reviewing operational details without the overhead of a larger Kubernetes management platform.
+
+Create a `.env` file before starting the app. NetKube requires `EMAIL` (or legacy `USERNAME`) and `PASSWORD` for login. If `SESSION_SECRET` is not set, NetKube will generate and persist a secure session secret automatically.
+
+## What does it look like?
+<table>
+	<tr>
+		<td><img src="./assets/1.png" alt="NetKube screenshot 1" width="100%" /></td>
+		<td><img src="./assets/2.png" alt="NetKube screenshot 2" width="100%" /></td>
+	</tr>
+	<tr>
+		<td><img src="./assets/3.png" alt="NetKube screenshot 3" width="100%" /></td>
+		<td><img src="./assets/4.png" alt="NetKube screenshot 4" width="100%" /></td>
+	</tr>
+</table>
 
 ## Run with Docker
 

@@ -3,11 +3,14 @@ package main
 import (
 	"bufio"
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"log"
+	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
@@ -19,6 +22,8 @@ import (
 )
 
 const authCookieName = "netkube_session"
+
+const generatedSessionSecretFile = "config/session_secret"
 
 type authConfig struct {
 	Email         string
@@ -45,6 +50,7 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Recovery())
+	router.Use(csrfProtection())
 	router.Use(authRequired(auth))
 
 	router.LoadHTMLFiles(
@@ -228,8 +234,10 @@ func loadAuthConfig() (authConfig, error) {
 	}
 
 	if secret == "" {
-		sum := sha256.Sum256([]byte(email + "\x00" + password))
-		secret = base64.StdEncoding.EncodeToString(sum[:])
+		secret, err = loadOrCreateSessionSecret(generatedSessionSecretFile)
+		if err != nil {
+			return authConfig{}, err
+		}
 	}
 
 	return authConfig{
@@ -304,12 +312,12 @@ func setAuthCookie(c *gin.Context, auth authConfig) {
 	value := email + "." + signature
 
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(authCookieName, value, 60*60*24*7, "/", "", false, true)
+	c.SetCookie(authCookieName, value, 60*60*24*7, "/", "", shouldUseSecureCookies(c), true)
 }
 
 func clearAuthCookie(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(authCookieName, "", -1, "/", "", false, true)
+	c.SetCookie(authCookieName, "", -1, "/", "", shouldUseSecureCookies(c), true)
 }
 
 func signSessionValue(value string, secret []byte) []byte {
@@ -376,4 +384,141 @@ func trimEnvQuotes(value string) string {
 	}
 
 	return value
+}
+
+func csrfProtection() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !requiresCSRFAuthCheck(c.Request.Method) {
+			c.Next()
+			return
+		}
+
+		if requestHasTrustedOrigin(c.Request) {
+			c.Next()
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "CSRF validation failed."})
+	}
+}
+
+func requiresCSRFAuthCheck(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodTrace:
+		return false
+	default:
+		return true
+	}
+}
+
+func requestHasTrustedOrigin(r *http.Request) bool {
+	for _, header := range []string{"Origin", "Referer"} {
+		value := strings.TrimSpace(r.Header.Get(header))
+		if value == "" {
+			continue
+		}
+
+		parsed, err := url.Parse(value)
+		if err != nil || parsed.Host == "" {
+			return false
+		}
+
+		if sameHost(r.Host, parsed.Host) {
+			return true
+		}
+
+		return false
+	}
+
+	return false
+}
+
+func shouldUseSecureCookies(c *gin.Context) bool {
+	if c.Request.TLS != nil {
+		return true
+	}
+
+	if strings.EqualFold(strings.TrimSpace(c.Request.Header.Get("X-Forwarded-Proto")), "https") {
+		return true
+	}
+
+	return !isLocalHost(c.Request.Host)
+}
+
+func sameHost(left, right string) bool {
+	return normalizeHost(left) == normalizeHost(right)
+}
+
+func normalizeHost(value string) string {
+	host := strings.TrimSpace(value)
+	if host == "" {
+		return ""
+	}
+
+	if parsedHost, _, err := net.SplitHostPort(host); err == nil {
+		host = parsedHost
+	} else if strings.HasPrefix(host, "[") && strings.Contains(host, "]") {
+		host = strings.TrimPrefix(strings.SplitN(host, "]", 2)[0], "[")
+	}
+
+	return strings.Trim(strings.ToLower(host), "[]")
+}
+
+func isLocalHost(host string) bool {
+	normalized := normalizeHost(host)
+	return normalized == "localhost" || normalized == "127.0.0.1" || normalized == "::1"
+}
+
+func loadOrCreateSessionSecret(path string) (string, error) {
+	if value, err := os.ReadFile(path); err == nil {
+		secret := strings.TrimSpace(string(value))
+		if secret != "" {
+			return secret, nil
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return "", err
+	}
+
+	secret, err := generateRandomSecret(66)
+	if err != nil {
+		return "", err
+	}
+
+	if err := os.WriteFile(path, []byte(secret), 0o600); err != nil {
+		return "", err
+	}
+
+	return secret, nil
+}
+
+func generateRandomSecret(length int) (string, error) {
+	const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	if length <= 0 {
+		return "", nil
+	}
+
+	result := make([]byte, length)
+	buffer := make([]byte, length)
+	maxValid := byte(256 - (256 % len(alphabet)))
+	filled := 0
+
+	for filled < length {
+		if _, err := rand.Read(buffer); err != nil {
+			return "", err
+		}
+
+		for _, value := range buffer {
+			if value >= maxValid {
+				continue
+			}
+
+			result[filled] = alphabet[int(value)%len(alphabet)]
+			filled++
+			if filled == length {
+				break
+			}
+		}
+	}
+
+	return string(result), nil
 }
