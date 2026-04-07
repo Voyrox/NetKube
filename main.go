@@ -220,24 +220,10 @@ func main() {
 		api.GET("/workloads/deployment/yaml", clusterapi.DeploymentYAMLHandler)
 	}
 
-	listenPort := resolveListenPort()
-	log.Printf("Server running in release mode on http://localhost:%s", listenPort)
-	if err := router.Run(":" + listenPort); err != nil {
+	log.Println("Server running in release mode on http://localhost:3000")
+	if err := router.Run(":3000"); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func resolveListenPort() string {
-	port := strings.TrimSpace(os.Getenv("PORT"))
-	if port == "" {
-		return "3000"
-	}
-
-	if strings.HasPrefix(port, ":") {
-		return strings.TrimPrefix(port, ":")
-	}
-
-	return port
 }
 
 func loadAuthConfig() (authConfig, error) {

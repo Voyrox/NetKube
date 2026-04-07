@@ -97,9 +97,8 @@
 	background-color: #1d1f23;
 	color: var(--text-color);
 	border-radius: 8px;
-	padding: 12px 12px;
+	padding: 11px 12px;
 	font-size: 0.95rem;
-	min-height: 44px;
 	outline: 0;
 	transition:
 		border-color 0.2s ease,
@@ -128,7 +127,6 @@ button[type="submit"] {
 		transform 0.15s ease,
 		background-color 0.2s ease,
 		opacity 0.2s ease;
-	min-height: 44px;
 }
 
 button[type="submit"]:hover {

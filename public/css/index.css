@@ -4,8 +4,6 @@ body {
     align-items: center;
     justify-content: center;
     padding: 24px;
-    min-height: 100vh;
-    min-height: 100dvh;
 }
 
 .topBar {
@@ -18,16 +16,11 @@ body {
     font-size: 28px;
     color: var(--text-color);
     cursor: pointer;
-    width: 44px;
-    height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .contexts {
     width: 100%;
-    max-width: 960px;
+    max-width: 60%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -83,8 +76,8 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     border: 0;
     border-radius: 8px;
     background: transparent;
@@ -112,8 +105,7 @@ body {
     color: var(--text-color);
     padding: 12px 14px;
     outline: none;
-    font-size: 16px;
-    min-height: 44px;
+    font-size: 14px;
 }
 
 .search input::placeholder {
@@ -237,7 +229,6 @@ body {
     font-weight: 600;
     cursor: pointer;
     border: 1px solid var(--disabled-dash-white);
-    min-height: 48px;
 }
 
 .button:disabled {
@@ -266,27 +257,6 @@ body {
 }
 
 @media (max-width: 640px) {
-    body {
-        display: block;
-        padding: 16px;
-    }
-
-    .contexts {
-        max-width: none;
-        gap: 12px;
-    }
-
-    .topBar,
-    .footer {
-        position: static;
-    }
-
-    .topBar {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 12px;
-    }
-
     .topRow {
         flex-direction: column;
         align-items: stretch;
@@ -294,7 +264,6 @@ body {
 
     .search {
         justify-content: stretch;
-        flex-direction: column;
     }
 
     .search input {
@@ -302,25 +271,10 @@ body {
     }
 
     .viewToggle {
-        align-self: stretch;
-        justify-content: center;
+        align-self: flex-end;
     }
 
     .contextList.grid-view {
         grid-template-columns: 1fr;
-    }
-
-    .contextItem {
-        padding: 14px;
-    }
-
-    .center,
-    .button {
-        width: 100%;
-    }
-
-    .footer {
-        justify-content: center;
-        margin-top: 8px;
     }
 }

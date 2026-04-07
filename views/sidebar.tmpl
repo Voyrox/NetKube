@@ -1,25 +1,8 @@
 {{ define "sidebar" }}
-<div class="mobile-topbar">
-    <a class="mobile-topbar__brand" href="/">
-        <img src="/public/logo/logo.png" alt="NetKube Logo" />
-        <span>Net<span class="mobile-topbar__accent">Kube</span></span>
-    </a>
-    <button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-expanded="false" aria-controls="sidebar" aria-label="Open navigation menu">
-        <i class="fa fa-bars" aria-hidden="true"></i>
-    </button>
-</div>
-
-<div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
-
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-brand">
-            <img src="/public/logo/logo.png" alt="NetKube Logo" />
-            <h2><a style="color: #fff;" href="/">Net</a><span style="color: #4a8bff;">Kube</span></h2>
-        </div>
-        <button class="sidebar-close" id="sidebarClose" type="button" aria-label="Close navigation menu">
-            <i class="fa fa-times" aria-hidden="true"></i>
-        </button>
+        <img src="/public/logo/logo.png" alt="NetKube Logo" />
+        <h2><a style="color: #fff;" href="/">Net</a><span style="color: #4a8bff;">Kube</span></h2>
     </div>
     <nav class="sidebar-nav">
         <div class="nav-dropdown open">
@@ -104,48 +87,6 @@
     document.addEventListener("DOMContentLoaded", function () {
         var dropdowns = document.querySelectorAll(".sidebar .nav-dropdown");
         var currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
-        var body = document.body;
-        var sidebar = document.getElementById("sidebar");
-        var mobileNavToggle = document.getElementById("mobileNavToggle");
-        var sidebarClose = document.getElementById("sidebarClose");
-        var sidebarBackdrop = document.getElementById("sidebarBackdrop");
-
-        function setSidebarOpen(isOpen) {
-            body.classList.toggle("sidebar-open", isOpen);
-            if (mobileNavToggle) {
-                mobileNavToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-            }
-            if (sidebar) {
-                sidebar.setAttribute("aria-hidden", isOpen ? "false" : "true");
-            }
-            if (sidebarBackdrop) {
-                sidebarBackdrop.hidden = !isOpen;
-            }
-        }
-
-        if (mobileNavToggle) {
-            mobileNavToggle.addEventListener("click", function () {
-                setSidebarOpen(!body.classList.contains("sidebar-open"));
-            });
-        }
-
-        if (sidebarClose) {
-            sidebarClose.addEventListener("click", function () {
-                setSidebarOpen(false);
-            });
-        }
-
-        if (sidebarBackdrop) {
-            sidebarBackdrop.addEventListener("click", function () {
-                setSidebarOpen(false);
-            });
-        }
-
-        window.addEventListener("resize", function () {
-            if (window.innerWidth > 900) {
-                setSidebarOpen(false);
-            }
-        });
 
         dropdowns.forEach(function (dropdown) {
             var button = dropdown.querySelector(".nav-dropdown-btn");
@@ -187,12 +128,6 @@
                     dropdown.classList.add("open");
                     button.setAttribute("aria-expanded", "true");
                 }
-
-                link.addEventListener("click", function () {
-                    if (window.innerWidth <= 900) {
-                        setSidebarOpen(false);
-                    }
-                });
             });
         });
     });

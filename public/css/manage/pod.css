@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  height: auto;
-  overflow: visible;
+  height: calc(100vh - 40px);
+  overflow: hidden;
 }
 
 .pod-manage-shell {
@@ -12,7 +12,7 @@
   gap: 16px;
   flex: 1;
   min-height: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .pod-summary-card,
@@ -99,9 +99,6 @@
   align-items: center;
   gap: 8px;
   padding: 10px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
 }
 
 .pod-tab {
@@ -114,8 +111,6 @@
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  min-height: 44px;
-  flex: 0 0 auto;
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
@@ -446,7 +441,6 @@
   padding: 8px 10px;
   font: inherit;
   font-size: 0.8rem;
-  min-height: 44px;
 }
 
 .pod-copy-button {
@@ -605,6 +599,11 @@
 }
 
 @media (max-width: 900px) {
+  .pod-manage-page {
+    height: auto;
+    overflow: visible;
+  }
+
   .pod-manage-shell,
   .pod-tab-panel--active,
   .pod-tab-panel[data-pod-panel="events"] .pod-panel,
@@ -654,39 +653,13 @@
     flex-direction: column;
   }
 
+  .pod-tab {
+    width: 100%;
+  }
+
   .pod-code-block,
   .pod-code-block--tall {
-    min-height: 260px;
-    max-height: 260px;
-  }
-}
-
-@media (max-width: 640px) {
-  .pod-summary-card,
-  .pod-panel,
-  .pod-tabs {
-    padding: 12px;
-    border-radius: 16px;
-  }
-
-  .pod-highlight-grid,
-  .pod-detail-list--overview,
-  .pod-collection--stacked,
-  .pod-collection,
-  .pod-keyvalue-list,
-  .pod-events-list,
-  .deployment-tag-list,
-  .deployment-detail-list {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-
-  .pod-tab-panel[data-pod-panel="yaml"] {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-
-  .pod-code-block,
-  .pod-code-block--tall,
-  .pod-yaml-viewer {
-    font-size: 0.72rem;
+    min-height: 320px;
+    max-height: 320px;
   }
 }
