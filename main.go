@@ -36,6 +36,7 @@ func main() {
 		"views/clusters/event.tmpl",
 		"views/clusters/namespaces.tmpl",
 		"views/clusters/leases.tmpl",
+		"views/networking/services.tmpl",
 		"views/workloads/overview.tmpl",
 		"views/workloads/deployments.tmpl",
 		"views/workloads/pods.tmpl",
@@ -88,6 +89,10 @@ func main() {
 		c.HTML(http.StatusOK, "clusters/leases", gin.H{})
 	})
 
+	router.GET("/networking/services", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "networking/services", gin.H{})
+	})
+
 	router.GET("/workloads/overview", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "workloads/overview", gin.H{})
 	})
@@ -124,6 +129,9 @@ func main() {
 		api.GET("/cluster/event", clusterapi.ClusterEventDetailHandler)
 		api.GET("/cluster/namespaces", clusterapi.ClusterNamespacesHandler)
 		api.GET("/cluster/leases", clusterapi.ClusterLeasesHandler)
+		api.GET("/cluster/namespace/yaml", clusterapi.ClusterNamespaceYAMLHandler)
+		api.GET("/cluster/lease/yaml", clusterapi.ClusterLeaseYAMLHandler)
+		api.GET("/networking/services", clusterapi.NetworkingServicesHandler)
 		api.GET("/workloads/overview", clusterapi.WorkloadsOverviewHandler)
 		api.GET("/workloads/pods", clusterapi.PodsHandler)
 		api.GET("/workloads/pod", clusterapi.PodDetailHandler)

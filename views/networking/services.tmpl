@@ -1,4 +1,4 @@
-{{ define "clusters/leases" }}
+{{ define "networking/services" }}
 <!doctype html>
 <html>
   <head>
@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="/public/css/deployments.css" />
     <script src="/public/model/localStorage.js" defer></script>
     <script src="/public/model/clusterApi.js" defer></script>
-    <script src="/public/model/clusterLeases.js" defer></script>
-            <link
+    <script src="/public/model/networkingServices.js" defer></script>
+    <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
@@ -22,10 +22,10 @@
     <main class="main-content dashboard-page deployments-page">
       <section class="dashboard-hero">
         <div>
-          <p class="eyebrow">Cluster inventory</p>
+          <p class="eyebrow">Networking inventory</p>
           <div class="hero-copy">
             <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
-            <span class="hero-user" id="leasesHeroTitle">Leases</span>
+            <span class="hero-user" id="servicesHeroTitle">Services</span>
           </div>
         </div>
 
@@ -44,44 +44,32 @@
       <section class="deployments-table-panel">
         <div class="deployments-table-panel__header">
           <div>
-            <p class="summary-kicker">Leases</p>
+            <p class="summary-kicker">Services</p>
           </div>
-          <span class="table-hint" id="leasesTableCount">0 rows</span>
+          <span class="table-hint" id="servicesTableCount">0 rows</span>
         </div>
 
-        <div class="deployments-table-wrap" role="region" aria-label="Leases table" tabindex="0">
+        <div class="deployments-table-wrap" role="region" aria-label="Services table" tabindex="0">
           <table class="deployments-table">
             <thead>
               <tr>
                 <th>Namespace</th>
                 <th>Name</th>
-                <th>Holder</th>
-                <th>Last Renew</th>
+                <th>Type</th>
+                <th>External IP</th>
+                <th>Ports</th>
+                <th>Selector</th>
                 <th>Age</th>
               </tr>
             </thead>
-            <tbody id="leasesTableBody">
+            <tbody id="servicesTableBody">
               <tr>
-                <td colspan="5">Loading leases...</td>
+                <td colspan="7">Loading services...</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
-
-      <div class="resource-drawer-backdrop" id="leaseYamlBackdrop" hidden></div>
-      <aside class="resource-drawer" id="leaseYamlDrawer" hidden>
-        <div class="resource-drawer__header">
-          <div>
-            <p class="summary-kicker">Lease YAML</p>
-            <h2 id="leaseYamlTitle">Select a lease</h2>
-          </div>
-          <button class="resource-drawer__close" id="leaseYamlClose" type="button" aria-label="Close YAML panel">
-            <i class="fa fa-times" aria-hidden="true"></i>
-          </button>
-        </div>
-        <pre class="resource-drawer__content" id="leaseYamlContent">Click a lease to view its YAML.</pre>
-      </aside>
     </main>
   </body>
 </html>

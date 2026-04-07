@@ -62,6 +62,22 @@ type leaseListResponse struct {
 	Count int             `json:"count"`
 }
 
+type serviceListItem struct {
+	Namespace  string `json:"namespace"`
+	Name       string `json:"name"`
+	Type       string `json:"type"`
+	ExternalIP string `json:"externalIP"`
+	Ports      string `json:"ports"`
+	Selector   string `json:"selector"`
+	Age        string `json:"age"`
+}
+
+type serviceListResponse struct {
+	Meta  pageMeta          `json:"meta"`
+	Items []serviceListItem `json:"items"`
+	Count int               `json:"count"`
+}
+
 type nodeEventRow struct {
 	Title   string `json:"title"`
 	Message string `json:"message"`
@@ -192,6 +208,80 @@ func ClusterLeasesHandler(c *gin.Context) {
 		Items: items,
 		Count: len(items),
 	})
+}
+
+func NetworkingServicesHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetServiceList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, serviceListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterNamespaceYAMLHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	name := strings.TrimSpace(c.Query("name"))
+	if name == "" {
+		c.JSON(http.StatusBadRequest, apiError{Error: "namespace name is required"})
+		return
+	}
+
+	namespace, err := cluster.Clientset.CoreV1().Namespaces().Get(context.Background(), name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	content, err := yaml.Marshal(namespace)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"meta": pageMetaFromCluster(cluster, ""), "content": string(content)})
+}
+
+func ClusterLeaseYAMLHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	namespace := strings.TrimSpace(c.Query("namespace"))
+	name := strings.TrimSpace(c.Query("name"))
+	if namespace == "" || name == "" {
+		c.JSON(http.StatusBadRequest, apiError{Error: "lease namespace and name are required"})
+		return
+	}
+
+	lease, err := cluster.Clientset.CoordinationV1().Leases(namespace).Get(context.Background(), name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	content, err := yaml.Marshal(lease)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"meta": pageMetaFromCluster(cluster, namespace), "content": string(content)})
 }
 
 func ClusterEventDetailHandler(c *gin.Context) {
@@ -362,6 +452,35 @@ func GetLeaseList(clientset *kubernetes.Clientset) ([]leaseListItem, error) {
 	return items, nil
 }
 
+func GetServiceList(clientset *kubernetes.Clientset) ([]serviceListItem, error) {
+	services, err := clientset.CoreV1().Services("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]serviceListItem, 0, len(services.Items))
+	for _, item := range services.Items {
+		items = append(items, serviceListItem{
+			Namespace:  item.Namespace,
+			Name:       item.Name,
+			Type:       fallback(string(item.Spec.Type)),
+			ExternalIP: serviceExternalIP(item),
+			Ports:      servicePorts(item),
+			Selector:   mapToSelector(item.Spec.Selector),
+			Age:        formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+
+	return items, nil
+}
+
 func GetClusterEventDetail(clientset *kubernetes.Clientset, namespace, name, reason, kind string) (clusterEventDetail, error) {
 	events, err := clientset.CoreV1().Events(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -468,6 +587,58 @@ func leaseRenew(lease coordinationv1.Lease) string {
 		return "-"
 	}
 	return formatAge(metav1.Time{Time: lease.Spec.RenewTime.Time})
+}
+
+func serviceExternalIP(service corev1.Service) string {
+	if len(service.Spec.ExternalIPs) > 0 {
+		return strings.Join(service.Spec.ExternalIPs, ", ")
+	}
+	if len(service.Status.LoadBalancer.Ingress) > 0 {
+		values := make([]string, 0, len(service.Status.LoadBalancer.Ingress))
+		for _, ingress := range service.Status.LoadBalancer.Ingress {
+			if ingress.IP != "" {
+				values = append(values, ingress.IP)
+				continue
+			}
+			if ingress.Hostname != "" {
+				values = append(values, ingress.Hostname)
+			}
+		}
+		if len(values) > 0 {
+			return strings.Join(values, ", ")
+		}
+	}
+	if service.Spec.ClusterIP != "" && service.Spec.ClusterIP != "None" {
+		return service.Spec.ClusterIP
+	}
+	return "-"
+}
+
+func servicePorts(service corev1.Service) string {
+	if len(service.Spec.Ports) == 0 {
+		return "-"
+	}
+	parts := make([]string, 0, len(service.Spec.Ports))
+	for _, port := range service.Spec.Ports {
+		part := string(port.Protocol) + "/" + int32String(port.Port)
+		if port.TargetPort.String() != "" {
+			part += " -> " + port.TargetPort.String()
+		}
+		parts = append(parts, part)
+	}
+	return strings.Join(parts, ", ")
+}
+
+func mapToSelector(values map[string]string) string {
+	if len(values) == 0 {
+		return "-"
+	}
+	parts := make([]string, 0, len(values))
+	for key, value := range values {
+		parts = append(parts, key+"="+value)
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, ", ")
 }
 
 func ClusterNodeYAMLHandler(c *gin.Context) {
