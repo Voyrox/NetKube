@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       renderWorkloadMetric("pods", data.pods, ["Running", "Pending", "Failed", "Other"]);
       renderWorkloadMetric("deployments", data.deployments, ["Healthy", "Warning", "Pending", "Other"], { hideStatus: true });
-      renderWorkloadMetric("replicaSets", data.replicaSets, ["Ready", "Pending", "Issues", "Other"]);
+      renderWorkloadMetric("replicaSets", data.replicaSets, ["Ready", "Pending", "Issues", "History"]);
       renderWorkloadMetric("daemonSets", data.daemonSets, ["Ready", "Pending", "Issues", "Other"]);
       renderWorkloadMetric("statefulSets", data.statefulSets, ["Ready", "Updating", "Issues", "Other"]);
       renderWorkloadMetric("cronJobs", data.cronJobs, ["Tracked", "Warning", "Issues", "Other"]);
@@ -26,7 +26,7 @@ function renderWorkloadMetric(prefix, metric, labels, options = {}) {
   const primary = Math.max(Number(metric.primary || 0), 0);
   const warning = Math.max(Number(metric.warning || 0), 0);
   const danger = Math.max(Number(metric.danger || 0), 0);
-  const other = Math.max(total - primary - warning - danger, 0);
+  const other = Math.max(Number(metric.other != null ? metric.other : total - primary - warning - danger), 0);
   const primaryOnly = total > 0 && primary === total && warning === 0 && danger === 0 && other === 0;
 
   if (!options.hideStatus) {
@@ -41,6 +41,6 @@ function renderWorkloadMetric(prefix, metric, labels, options = {}) {
   visibleItems += toggleSummaryDetail(prefix, "Danger", labels[2], danger);
   visibleItems += toggleSummaryDetail(prefix, "Other", labels[3], other);
 
-  updateSummaryHealthBar(prefix, total, { primary, warning, danger, other });
+  updateSummaryHealthBar(prefix, total, { primary, warning, danger, other, healthTotal: Number(metric.healthTotal || 0) });
   updateSummaryCardVisibility(prefix, total, visibleItems, { showBreakdown: !primaryOnly });
 }

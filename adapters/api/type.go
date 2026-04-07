@@ -94,11 +94,13 @@ type podYAMLResponse struct {
 }
 
 type overviewMetric struct {
-	Total   int    `json:"total"`
-	Primary int    `json:"primary"`
-	Warning int    `json:"warning"`
-	Danger  int    `json:"danger"`
-	Status  string `json:"status"`
+	Total       int    `json:"total"`
+	Primary     int    `json:"primary"`
+	Warning     int    `json:"warning"`
+	Danger      int    `json:"danger"`
+	Other       int    `json:"other,omitempty"`
+	HealthTotal int    `json:"healthTotal,omitempty"`
+	Status      string `json:"status"`
 }
 
 type clusterOverviewResponse struct {

@@ -68,7 +68,7 @@ function updateSummaryHealthBar(prefix, total, values) {
   const [healthySegment, warningSegment, dangerSegment] = card.querySelectorAll(".health-bar .segment");
   if (!healthySegment || !warningSegment || !dangerSegment) return;
 
-  const safeTotal = Math.max(Number(total || 0), 0);
+  const safeTotal = Math.max(Number(values.healthTotal || total || 0), 0);
   if (safeTotal <= 0) {
     healthySegment.style.width = "0%";
     warningSegment.style.width = "0%";
@@ -79,11 +79,9 @@ function updateSummaryHealthBar(prefix, total, values) {
   const primary = Math.max(Number(values.primary || 0), 0);
   const warning = Math.max(Number(values.warning || 0), 0);
   const danger = Math.max(Number(values.danger || 0), 0);
-  const other = Math.max(Number(values.other || 0), 0);
-
   healthySegment.style.width = `${(primary / safeTotal) * 100}%`;
   warningSegment.style.width = `${(warning / safeTotal) * 100}%`;
-  dangerSegment.style.width = `${((danger + other) / safeTotal) * 100}%`;
+  dangerSegment.style.width = `${(danger / safeTotal) * 100}%`;
 }
 
 function updateSummaryCardVisibility(prefix, total, visibleItems, options = {}) {

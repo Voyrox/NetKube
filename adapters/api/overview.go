@@ -131,7 +131,7 @@ func WorkloadsOverviewHandler(c *gin.Context) {
 			Danger:  deploymentStats.Pending,
 			Status:  statusFromCounts(deploymentStats.Pending, deploymentStats.Warning),
 		},
-		ReplicaSets:    simpleOverviewMetric(len(replicaSets.Items), readyReplicaSets(replicaSets.Items), pendingReplicaSets(replicaSets.Items), issueReplicaSets(replicaSets.Items)),
+		ReplicaSets:    replicaSetOverviewMetric(replicaSets.Items),
 		DaemonSets:     simpleOverviewMetric(len(daemonSets.Items), readyDaemonSets(daemonSets.Items), pendingDaemonSets(daemonSets.Items), issueDaemonSets(daemonSets.Items)),
 		StatefulSets:   simpleOverviewMetric(len(statefulSets.Items), readyStatefulSets(statefulSets.Items), updatingStatefulSets(statefulSets.Items), len(statefulSets.Items)-readyStatefulSets(statefulSets.Items)-updatingStatefulSets(statefulSets.Items)),
 		CronJobs:       simpleOverviewMetric(len(cronJobs.Items), len(cronJobs.Items), 0, 0),
@@ -209,11 +209,29 @@ func statusFromCounts(danger, warning int) string {
 
 func simpleOverviewMetric(total, primary, warning, danger int) overviewMetric {
 	return overviewMetric{
-		Total:   total,
-		Primary: primary,
-		Warning: warning,
-		Danger:  danger,
-		Status:  statusFromCounts(danger, warning),
+		Total:       total,
+		Primary:     primary,
+		Warning:     warning,
+		Danger:      danger,
+		HealthTotal: primary + warning + danger,
+		Status:      statusFromCounts(danger, warning),
+	}
+}
+
+func replicaSetOverviewMetric(items []appsv1.ReplicaSet) overviewMetric {
+	primary := readyReplicaSets(items)
+	warning := pendingReplicaSets(items)
+	danger := issueReplicaSets(items)
+	history := scaledDownReplicaSets(items)
+
+	return overviewMetric{
+		Total:       len(items),
+		Primary:     primary,
+		Warning:     warning,
+		Danger:      danger,
+		Other:       history,
+		HealthTotal: primary + warning + danger,
+		Status:      statusFromCounts(danger, warning),
 	}
 }
 
@@ -413,6 +431,16 @@ func issueReplicaSets(items []appsv1.ReplicaSet) int {
 	for _, item := range items {
 		desired := desiredReplicas(item.Spec.Replicas)
 		if desired > 0 && item.Status.Replicas > 0 && item.Status.ReadyReplicas < desired {
+			count++
+		}
+	}
+	return count
+}
+
+func scaledDownReplicaSets(items []appsv1.ReplicaSet) int {
+	count := 0
+	for _, item := range items {
+		if desiredReplicas(item.Spec.Replicas) == 0 && item.Status.Replicas == 0 {
 			count++
 		}
 	}
