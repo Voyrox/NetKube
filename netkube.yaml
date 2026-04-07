@@ -1,3 +1,30 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: netkube
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: netkube-auth
+  namespace: netkube
+type: Opaque
+stringData:
+  EMAIL: admin@example.com
+  PASSWORD: change-me
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: netkube-config
+  namespace: netkube
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -49,3 +76,17 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: netkube-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netkube
+  namespace: netkube
+spec:
+  type: ClusterIP
+  selector:
+    app: netkube
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
