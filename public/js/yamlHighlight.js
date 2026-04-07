@@ -7,26 +7,63 @@ function escapeYamlHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function nbsp(value) {
+  return escapeYamlHtml(value).replace(/ /g, "&nbsp;");
+}
+
+function highlightYamlPunctuation(value) {
+  return value.replace(/[{}\[\]]/g, (char) => {
+    return `<span class="nk-yaml-punctuation">${char}</span>`;
+  });
+}
+
+function splitYamlKeyValue(line) {
+  const listPrefixMatch = line.match(/^(\s*-\s*)/);
+  const prefix = listPrefixMatch ? listPrefixMatch[1] : "";
+  const rest = line.slice(prefix.length);
+
+  const lastColon = rest.lastIndexOf(":");
+  if (lastColon === -1) {
+    return null;
+  }
+
+  const key = rest.slice(0, lastColon);
+  const afterColon = rest.slice(lastColon + 1);
+
+  if (!key.trim()) {
+    return null;
+  }
+
+  if (afterColon.length > 0 && !/^\s/.test(afterColon)) {
+    return null;
+  }
+
+  return {
+    prefix,
+    key,
+    value: afterColon.trimStart()
+  };
+}
+
 function highlightYamlLine(line) {
-  const escaped = escapeYamlHtml(line).replace(/ /g, "&nbsp;");
-  if (!escaped.trim()) {
+  if (!line.trim()) {
     return "&nbsp;";
   }
 
-  if (escaped.trimStart().startsWith("#")) {
-    return `<span class="nk-yaml-comment">${escaped}</span>`;
+  if (line.trimStart().startsWith("#")) {
+    return `<span class="nk-yaml-comment">${highlightYamlPunctuation(nbsp(line))}</span>`;
   }
 
-  const keyMatch = escaped.match(/^(\s*-\s*)?([^:&][^:]*?):\s*(.*)$/);
-  if (!keyMatch) {
-    return highlightYamlValue(escaped);
+  const parts = splitYamlKeyValue(line);
+  if (!parts) {
+    return highlightYamlValue(highlightYamlPunctuation(nbsp(line)));
   }
 
-  const prefix = keyMatch[1] || "";
-  const key = keyMatch[2] || "";
-  const value = keyMatch[3] || "";
+  const { prefix, key, value } = parts;
 
-  return `${prefix}<span class="nk-yaml-key">${key}</span>:${value ? ` ${highlightYamlValue(value)}` : ""}`;
+  return `${highlightYamlPunctuation(nbsp(prefix))}<span class="nk-yaml-key">${highlightYamlPunctuation(nbsp(key))}</span>:${
+    value ? ` ${highlightYamlValue(highlightYamlPunctuation(nbsp(value)))}` : ""
+  }`;
 }
 
 function highlightYamlValue(value) {
@@ -36,6 +73,10 @@ function highlightYamlValue(value) {
   }
 
   const unquoted = trimmed.replace(/^"|"$/g, "");
+
+  if (/^[|>]([+-])?$/.test(trimmed)) {
+    return `<span class="nk-yaml-operator">${value}</span>`;
+  }
 
   if (/^\d{4}-\d{2}-\d{2}t\d{2}:\d{2}:\d{2}(?:\.\d+)?z$/i.test(unquoted)) {
     return `<span class="nk-yaml-timestamp">${value}</span>`;
