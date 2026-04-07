@@ -145,8 +145,10 @@ func GetDaemonSets(clientset *kubernetes.Clientset, namespace string) ([]daemonS
 func replicaSetStatus(item appsv1.ReplicaSet) string {
 	desired := replicasOrZero(item.Spec.Replicas)
 	switch {
+	case desired == 0 && item.Status.Replicas == 0:
+		return "Scaled down"
 	case desired == 0:
-		return "Pending"
+		return "Updating"
 	case item.Status.ReadyReplicas == desired && item.Status.AvailableReplicas == desired:
 		return "Healthy"
 	case item.Status.ReadyReplicas == 0:
@@ -159,8 +161,10 @@ func replicaSetStatus(item appsv1.ReplicaSet) string {
 func daemonSetStatus(item appsv1.DaemonSet) string {
 	desired := item.Status.DesiredNumberScheduled
 	switch {
+	case desired == 0 && item.Status.CurrentNumberScheduled == 0:
+		return "Scaled down"
 	case desired == 0:
-		return "Pending"
+		return "Updating"
 	case item.Status.NumberReady == desired && item.Status.UpdatedNumberScheduled == desired && item.Status.NumberMisscheduled == 0:
 		return "Healthy"
 	case item.Status.NumberReady == 0 || item.Status.NumberMisscheduled > 0:

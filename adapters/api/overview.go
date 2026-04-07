@@ -389,7 +389,8 @@ func trimFloat(value float64) string {
 func readyReplicaSets(items []appsv1.ReplicaSet) int {
 	count := 0
 	for _, item := range items {
-		if item.Status.ReadyReplicas == desiredReplicas(item.Spec.Replicas) {
+		desired := desiredReplicas(item.Spec.Replicas)
+		if desired > 0 && item.Status.ReadyReplicas == desired {
 			count++
 		}
 	}
@@ -399,7 +400,8 @@ func readyReplicaSets(items []appsv1.ReplicaSet) int {
 func pendingReplicaSets(items []appsv1.ReplicaSet) int {
 	count := 0
 	for _, item := range items {
-		if item.Status.Replicas == 0 || item.Status.ReadyReplicas == 0 {
+		desired := desiredReplicas(item.Spec.Replicas)
+		if desired > 0 && (item.Status.Replicas == 0 || item.Status.ReadyReplicas == 0) {
 			count++
 		}
 	}
@@ -419,7 +421,7 @@ func readyDaemonSets(items []appsv1.DaemonSet) int {
 func pendingDaemonSets(items []appsv1.DaemonSet) int {
 	count := 0
 	for _, item := range items {
-		if item.Status.DesiredNumberScheduled == 0 || item.Status.NumberReady == 0 {
+		if item.Status.DesiredNumberScheduled > 0 && item.Status.NumberReady == 0 {
 			count++
 		}
 	}
