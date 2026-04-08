@@ -1,65 +1,52 @@
 <!doctype html>
-<html>
-  <head>
-    <title>NetKube</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="public/logo/logo.png" />
-    <link rel="stylesheet" href="public/global.css" />
-    <link rel="stylesheet" href="public/css/login.css" />
+<html lang="en">
 
-    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-    <script src="public/js/localStorage.js" defer></script>
+<head>
+  <title>NetKube</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="public/logo/logo.png" />
+  <link rel="stylesheet" href="public/global.css" />
+  <link rel="stylesheet" href="public/css/login.css" />
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <div class="login-shell">
-        <img class="auth-banner" src="public/logo/banner.png" alt="NetKube" />
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script src="public/js/app/core/storage/local.js" defer></script>
 
-        <div class="login-box">
-          <p class="eyebrow">Secure access</p>
-          <h2>Log in to NetKube</h2>
-          <p class="intro">
-            Enter the email and password configured in your `.env` file to continue.
-          </p>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
 
-          <div class="status-message" id="loginStatus" role="alert" aria-live="polite"></div>
+<body>
+  <div class="container">
+    <div class="login-shell">
+      <img class="auth-banner" src="public/logo/banner.png" alt="NetKube" />
 
-          <form id="loginForm">
-            <div class="input-group">
-              <label for="login-email">Email</label>
-              <input
-                type="text"
-                id="login-email"
-                name="email"
-                autocomplete="username"
-                required
-              />
-            </div>
+      <div class="login-box">
+        <p class="eyebrow">Secure access</p>
+        <h2>Log in to NetKube</h2>
+        <p class="intro">
+          Enter the email and password configured in your `.env` file to continue.
+        </p>
 
-            <div class="input-group">
-              <label for="login-password">Password</label>
-              <input
-                type="password"
-                id="login-password"
-                name="password"
-                autocomplete="current-password"
-                required
-              />
-            </div>
+        <div class="status-message" id="loginStatus" role="alert" aria-live="polite"></div>
 
-            <button type="submit" id="loginButton">Log In</button>
-          </form>
-        </div>
+        <form id="loginForm">
+          <div class="input-group">
+            <label for="login-email">Email</label>
+            <input type="text" id="login-email" name="email" autocomplete="username" required />
+          </div>
+
+          <div class="input-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" autocomplete="current-password" required />
+          </div>
+
+          <button type="submit" id="loginButton">Log In</button>
+        </form>
       </div>
     </div>
+  </div>
 
-    <script src="/public/js/login.js" defer></script>
-  </body>
+  <script src="/public/js/app/auth/login/boot.js" defer></script>
+</body>
+
 </html>
-

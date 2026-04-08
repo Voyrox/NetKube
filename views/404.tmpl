@@ -1,53 +1,56 @@
 {{ define "404" }}
 <!doctype html>
-<html>
-  <head>
-    <title>NetKube</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/public/logo/logo.png" />
-    <link rel="stylesheet" href="/public/global.css" />
-    <style>
-      .not-found-page {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-      }
+<html lang="en">
 
-      .not-found-copy {
-        text-align: center;
-      }
+<head>
+  <title>NetKube</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="/public/logo/logo.png" />
+  <link rel="stylesheet" href="/public/global.css" />
+  <style>
+    .not-found-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
 
-      .not-found-copy h1 {
-        margin: 0;
-        color: var(--text-color);
-        font-size: clamp(1.8rem, 3vw, 2.4rem);
-      }
+    .not-found-copy {
+      text-align: center;
+    }
 
-      .not-found-path {
-        margin: 10px 0 0;
-        color: var(--inactive-text);
-        font-size: 0.95rem;
-      }
+    .not-found-copy h1 {
+      margin: 0;
+      color: var(--text-color);
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+    }
 
-      .not-found-back {
-        display: inline-block;
-        margin-top: 14px;
-        color: var(--blue);
-        font-weight: 600;
-      }
-    </style>
-  </head>
-  <body>
-    <main class="not-found-page">
-      <div class="not-found-copy">
-        <h1>Nothing to see here.</h1>
-        <p class="not-found-path">{{ .path }}</p>
-        <a class="not-found-back" href="javascript:history.back()">Back</a>
-      </div>
-    </main>
-  </body>
+    .not-found-path {
+      margin: 10px 0 0;
+      color: var(--inactive-text);
+      font-size: 0.95rem;
+    }
+
+    .not-found-back {
+      display: inline-block;
+      margin-top: 14px;
+      color: var(--blue);
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="not-found-page">
+    <div class="not-found-copy">
+      <h1>Nothing to see here.</h1>
+      <p class="not-found-path">{{ .path }}</p>
+      <a class="not-found-back" href="javascript:history.back()">Back</a>
+    </div>
+  </main>
+</body>
+
 </html>
 {{ end }}

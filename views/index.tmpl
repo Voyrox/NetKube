@@ -1,149 +1,123 @@
 <!doctype html>
-<html>
-  <head>
-    <title>NetKube</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="public/logo/logo.png" />
-    <link rel="stylesheet" href="public/global.css" />
-    <link rel="stylesheet" href="public/css/index.css" />
-    <link rel="stylesheet" href="public/model/model.css" />
+<html lang="en">
 
-    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-    <script src="public/js/localStorage.js" defer></script>
-    <script src="public/model/script.js" defer></script>
+<head>
+  <title>NetKube</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="public/logo/logo.png" />
+  <link rel="stylesheet" href="public/global.css" />
+  <link rel="stylesheet" href="public/css/index.css" />
+  <link rel="stylesheet" href="public/model/model.css" />
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-  </head>
-  <body>
-    <div class="topBar">
-      <i class="fa fa-cog" id="openSetupModal"></i>
-    </div>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script src="public/js/app/core/storage/local.js" defer></script>
+  <script src="public/model/script.js" defer></script>
 
-    <div class="contexts">
-      <div class="bar">
-        <div class="topRow">
-          <div class="logo">
-            <img src="./public/logo/logo.png" alt="Logo" /><h2><a style="color: #fff; margin-left:8px;" href="/">Net</a><span style="color: #4a8bff;">Kube</span></h2>
-          </div>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
 
-          <div class="search">
-            <input type="text" id="contextSearchInput" placeholder="Search..." />
-            <div class="viewToggle" aria-label="Context layout controls">
-              <button
-                type="button"
-                class="viewToggleButton is-active"
-                id="rowViewButton"
-                aria-label="Row view"
-                aria-pressed="true"
-              >
-                <i class="fa fa-bars"></i>
-              </button>
-              <button
-                type="button"
-                class="viewToggleButton"
-                id="gridViewButton"
-                aria-label="Grid view"
-                aria-pressed="false"
-              >
-                <i class="fa fa-th-large"></i>
-              </button>
-            </div>
-            <i class="fa fa-refresh" id="refreshContextsButton"></i>
-          </div>
+<body>
+  <div class="topBar">
+    <i class="fa fa-cog" id="openSetupModal"></i>
+  </div>
+
+  <div class="contexts">
+    <div class="bar">
+      <div class="topRow">
+        <div class="logo">
+          <img src="./public/logo/logo.png" alt="Logo" />
+          <h2><a style="color: #fff; margin-left:8px;" href="/">Net</a><span style="color: #4a8bff;">Kube</span></h2>
         </div>
 
-        <div class="bottomRow">
-          <a class="text" id="contextHelperText">Select one or more contexts to get started</a>
+        <div class="search">
+          <input type="text" id="contextSearchInput" placeholder="Search..." />
+          <div class="viewToggle" aria-label="Context layout controls">
+            <button type="button" class="viewToggleButton is-active" id="rowViewButton" aria-label="Row view"
+              aria-pressed="true">
+              <i class="fa fa-bars"></i>
+            </button>
+            <button type="button" class="viewToggleButton" id="gridViewButton" aria-label="Grid view"
+              aria-pressed="false">
+              <i class="fa fa-th-large"></i>
+            </button>
+          </div>
+          <i class="fa fa-refresh" id="refreshContextsButton"></i>
         </div>
       </div>
 
-      <div class="contextList" id="contextList"></div>
+      <div class="bottomRow">
+        <a class="text" id="contextHelperText">Select one or more contexts to get started</a>
+      </div>
+    </div>
 
-      <div class="center">
-        <button class="button" id="connectButton" disabled>
-          Connect <i class="fa fa-arrow-right"></i>
+    <div class="contextList" id="contextList"></div>
+
+    <div class="center">
+      <button class="button" id="connectButton" disabled>
+        Connect <i class="fa fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a class="blue" href="#">Changelog</a>
+    <a>v1.0.0</a>
+  </div>
+
+  <!-- setup modal -->
+  <div class="modalOverlay" id="setupModal">
+    <div class="setupModalCard">
+      <div class="setupModalHeader">
+        <h2>Kubeconfig Sources</h2>
+        <button class="closeModalButton" id="closeSetupModal" aria-label="Close">
+          <i class="fa fa-times"></i>
         </button>
       </div>
-    </div>
 
-    <div class="footer">
-      <a class="blue" href="#">Changelog</a>
-      <a>v1.0.0</a>
-    </div>
+      <p class="setupModalDescription">
+        NetKube needs to know where your Kubeconfig files are loaded. By default
+        Kubeconfig uses the same location as kubectl.
+      </p>
 
-    <!-- setup modal -->
-    <div class="modalOverlay" id="setupModal">
-      <div class="setupModalCard">
-        <div class="setupModalHeader">
-          <h2>Kubeconfig Sources</h2>
-          <button class="closeModalButton" id="closeSetupModal" aria-label="Close">
-            <i class="fa fa-times"></i>
-          </button>
+      <div class="setupActions">
+        <button class="setupActionButton" id="addFilesButton" type="button">
+          <i class="fa fa-file"></i>
+          <span>Add Files</span>
+        </button>
+
+        <button class="setupActionButton" id="addFolderButton" type="button">
+          <i class="fa fa-folder"></i>
+          <span>Add Folder</span>
+        </button>
+      </div>
+
+      <div class="setupPathInput">
+        <input id="pathInput" type="text"
+          placeholder="Or paste full file path (e.g., /home/user/.kube/config or C:\Users\user\.kube\config)" />
+        <button class="setupActionButton" id="addPathButton" type="button">
+          <i class="fa fa-plus"></i>
+          <span>Add Path</span>
+        </button>
+      </div>
+
+      <input id="fileInput" type="file" multiple accept=".yaml,.yml,.conf,.config,.kubeconfig,kubeconfig" hidden />
+
+      <input id="folderInput" type="file" webkitdirectory directory multiple hidden />
+
+      <div class="setupListWrap">
+        <div class="setupListHeader">
+          <span>Loaded Sources</span>
         </div>
 
-        <p class="setupModalDescription">
-          NetKube needs to know where your Kubeconfig files are loaded. By default
-          Kubeconfig uses the same location as kubectl.
-        </p>
-
-        <div class="setupActions">
-          <button class="setupActionButton" id="addFilesButton" type="button">
-            <i class="fa fa-file"></i>
-            <span>Add Files</span>
-          </button>
-
-          <button class="setupActionButton" id="addFolderButton" type="button">
-            <i class="fa fa-folder"></i>
-            <span>Add Folder</span>
-          </button>
+        <div class="setupEmptyState" id="setupEmptyState">
+          No Kubeconfig sources added yet.
         </div>
 
-        <div class="setupPathInput">
-          <input
-            id="pathInput"
-            type="text"
-            placeholder="Or paste full file path (e.g., /home/user/.kube/config or C:\Users\user\.kube\config)"
-          />
-          <button class="setupActionButton" id="addPathButton" type="button">
-            <i class="fa fa-plus"></i>
-            <span>Add Path</span>
-          </button>
-        </div>
-
-        <input
-          id="fileInput"
-          type="file"
-          multiple
-          accept=".yaml,.yml,.conf,.config,.kubeconfig,kubeconfig"
-          hidden
-        />
-
-        <input
-          id="folderInput"
-          type="file"
-          webkitdirectory
-          directory
-          multiple
-          hidden
-        />
-
-        <div class="setupListWrap">
-          <div class="setupListHeader">
-            <span>Loaded Sources</span>
-          </div>
-
-          <div class="setupEmptyState" id="setupEmptyState">
-            No Kubeconfig sources added yet.
-          </div>
-
-          <div class="setupSourceList" id="setupSourceList"></div>
-        </div>
+        <div class="setupSourceList" id="setupSourceList"></div>
       </div>
     </div>
-  </body>
-</html>
+  </div>
+</body>
 
+</html>

@@ -1,133 +1,137 @@
 {{ define "workloads/deployments" }}
 <!doctype html>
-<html>
-  <head>
-    <title>NetKube</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/png" href="/public/logo/logo.png" />
-        <link rel="stylesheet" href="/public/global.css" />
-        <link rel="stylesheet" href="/public/css/overview.css" />
-        <link rel="stylesheet" href="/public/css/deployments.css" />
+<html lang="en">
 
-    
-	    <script src="/public/js/localStorage.js" defer></script>
-	    <script src="/public/js/yamlHighlight.js" defer></script>
-	    <script src="/public/js/createResourceModal.js" defer></script>
-	    <script src="/public/js/clusterApi.js" defer></script>
-	    <script src="/public/js/deployments.js" defer></script>
+<head>
+  <title>NetKube</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="/public/logo/logo.png" />
+  <link rel="stylesheet" href="/public/global.css" />
+  <link rel="stylesheet" href="/public/css/overview.css" />
+  <link rel="stylesheet" href="/public/css/deployments.css" />
+  <script src="/public/js/app/core/storage/local.js" defer></script>
+  <script src="/public/js/app/ui/yaml/highlight.js" defer></script>
+  <script src="/public/js/app/core/dom/text.js" defer></script>
+  <script src="/public/js/app/core/dom/table.js" defer></script>
+  <script src="/public/js/app/core/dom/page-meta.js" defer></script>
+  <script src="/public/js/app/core/refresh/polling.js" defer></script>
+  <script src="/public/js/app/core/api/cluster.js" defer></script>
+  <script src="/public/js/app/ui/modal/create-resource.js" defer></script>
+  <script src="/public/js/app/workloads/v1/deployments/boot.js" defer></script>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-  </head>
-  <body>
-    {{ template "sidebar" . }}
-    <main class="main-content dashboard-page deployments-page">
-      <section class="dashboard-hero">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+
+<body>
+  {{ template "sidebar" . }}
+  <main class="main-content dashboard-page deployments-page">
+    <section class="dashboard-hero">
+      <div>
+        <p class="eyebrow">Workload inventory</p>
+        <div class="hero-copy">
+          <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
+          <span class="hero-user" id="deploymentsHeroTitle">Deployments</span>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <div class="meta-pill">
+          <span class="meta-label">Namespace filter</span>
+          <strong id="deploymentsNamespaceFilter">All namespaces</strong>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Refresh</span>
+          <strong id="lastRefresh">Live</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="deployments-toolbar" aria-label="Deployment controls">
+      <div class="deployments-toolbar__left">
+        <button class="action-button action-button--primary" id="createDeploymentButton" type="button">
+          <i class="fa fa-plus" aria-hidden="true"></i>
+          <span>Create deployment</span>
+        </button>
+
+        <label class="search-control" for="deploymentSearch">
+          <i class="fa fa-search" aria-hidden="true"></i>
+          <input id="deploymentSearch" type="search" placeholder="Search deployments" />
+        </label>
+      </div>
+
+      <div class="deployments-toolbar__right">
+        <button class="filter-chip filter-chip--active" type="button">All</button>
+        <button class="filter-chip" type="button">Running</button>
+        <button class="filter-chip" type="button">Pending</button>
+        <button class="filter-chip" type="button">Failed</button>
+        <button class="filter-chip" type="button">Unknown</button>
+      </div>
+    </section>
+
+    <section class="deployments-table-panel">
+      <div class="deployments-table-panel__header">
         <div>
-          <p class="eyebrow">Workload inventory</p>
-          <div class="hero-copy">
-            <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
-            <span class="hero-user" id="deploymentsHeroTitle">Deployments</span>
-          </div>
+          <p class="summary-kicker">Deployments</p>
         </div>
+        <span class="table-hint" id="deploymentsTableCount">0 rows</span>
+      </div>
 
-        <div class="hero-meta">
-          <div class="meta-pill">
-            <span class="meta-label">Namespace filter</span>
-            <strong id="deploymentsNamespaceFilter">All namespaces</strong>
-          </div>
-          <div class="meta-pill">
-            <span class="meta-label">Refresh</span>
-            <strong id="lastRefresh">Live</strong>
-          </div>
+      <div class="deployments-table-wrap" role="region" aria-label="Deployments table" tabindex="0">
+        <table class="deployments-table">
+          <thead>
+            <tr>
+              <th>Namespace</th>
+              <th>Name</th>
+              <th>Ready</th>
+              <th>Status</th>
+              <th>Desired</th>
+              <th>Up-to-date</th>
+              <th>Available</th>
+              <th>Age</th>
+            </tr>
+          </thead>
+          <tbody id="deploymentsTableBody">
+            <tr>
+              <td colspan="8">Loading deployments...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="create-resource-modal-backdrop" id="createResourceBackdrop" hidden></div>
+    <aside class="create-resource-modal" id="createResourceModal" hidden role="dialog" aria-modal="true"
+      aria-labelledby="createResourceTitle">
+      <div class="create-resource-modal__header">
+        <div>
+          <h2 id="createResourceTitle">Create Deployment</h2>
+          <p id="createResourceDescription">Edit the YAML manifest before confirming the deployment.</p>
         </div>
-      </section>
+        <button class="create-resource-modal__close" id="createResourceClose" type="button"
+          aria-label="Close create deployment modal">
+          <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
 
-      <section class="deployments-toolbar" aria-label="Deployment controls">
-        <div class="deployments-toolbar__left">
-	          <button class="action-button action-button--primary" id="createDeploymentButton" type="button">
-	            <i class="fa fa-plus" aria-hidden="true"></i>
-	            <span>Create deployment</span>
-	          </button>
-
-          <label class="search-control" for="deploymentSearch">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            <input id="deploymentSearch" type="search" placeholder="Search deployments" />
-          </label>
+      <div class="create-resource-modal__editor">
+        <div class="create-resource-modal__line-numbers" id="createResourceLineNumbers" aria-hidden="true"></div>
+        <div class="create-resource-modal__viewport">
+          <div class="create-resource-modal__highlight" id="createResourceHighlight" aria-hidden="true"></div>
+          <textarea class="create-resource-modal__input" id="createResourceInput" spellcheck="false" wrap="off"
+            aria-label="Deployment YAML editor"></textarea>
         </div>
+      </div>
 
-        <div class="deployments-toolbar__right">
-          <button class="filter-chip filter-chip--active" type="button">All</button>
-          <button class="filter-chip" type="button">Running</button>
-          <button class="filter-chip" type="button">Pending</button>
-          <button class="filter-chip" type="button">Failed</button>
-          <button class="filter-chip" type="button">Unknown</button>
-        </div>
-      </section>
+      <p class="create-resource-modal__status" id="createResourceStatus" aria-live="polite"></p>
 
-	      <section class="deployments-table-panel">
-        <div class="deployments-table-panel__header">
-          <div>
-            <p class="summary-kicker">Deployments</p>
-          </div>
-          <span class="table-hint" id="deploymentsTableCount">0 rows</span>
-        </div>
+      <div class="create-resource-modal__footer">
+        <button class="action-button" id="createResourceCancel" type="button">Cancel</button>
+        <button class="action-button action-button--primary" id="createResourceConfirm" type="button">Confirm</button>
+      </div>
+    </aside>
+  </main>
+</body>
 
-        <div class="deployments-table-wrap" role="region" aria-label="Deployments table" tabindex="0">
-          <table class="deployments-table">
-            <thead>
-              <tr>
-                <th>Namespace</th>
-                <th>Name</th>
-                <th>Ready</th>
-                <th>Status</th>
-                <th>Desired</th>
-                 <th>Up-to-date</th>
-                 <th>Available</th>
-                 <th>Age</th>
-              </tr>
-            </thead>
-            <tbody id="deploymentsTableBody">
-              <tr>
-                <td colspan="8">Loading deployments...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-	      </section>
-
-	      <div class="create-resource-modal-backdrop" id="createResourceBackdrop" hidden></div>
-	      <aside class="create-resource-modal" id="createResourceModal" hidden role="dialog" aria-modal="true" aria-labelledby="createResourceTitle">
-	        <div class="create-resource-modal__header">
-	          <div>
-	            <h2 id="createResourceTitle">Create Deployment</h2>
-	            <p id="createResourceDescription">Edit the YAML manifest before confirming the deployment.</p>
-	          </div>
-	          <button class="create-resource-modal__close" id="createResourceClose" type="button" aria-label="Close create deployment modal">
-	            <i class="fa fa-times" aria-hidden="true"></i>
-	          </button>
-	        </div>
-
-	        <div class="create-resource-modal__editor">
-	          <div class="create-resource-modal__line-numbers" id="createResourceLineNumbers" aria-hidden="true"></div>
-	          <div class="create-resource-modal__viewport">
-	            <div class="create-resource-modal__highlight" id="createResourceHighlight" aria-hidden="true"></div>
-	            <textarea class="create-resource-modal__input" id="createResourceInput" spellcheck="false" wrap="off" aria-label="Deployment YAML editor"></textarea>
-	          </div>
-	        </div>
-
-	        <p class="create-resource-modal__status" id="createResourceStatus" aria-live="polite"></p>
-
-	        <div class="create-resource-modal__footer">
-	          <button class="action-button" id="createResourceCancel" type="button">Cancel</button>
-	          <button class="action-button action-button--primary" id="createResourceConfirm" type="button">Confirm</button>
-	        </div>
-	      </aside>
-	    </main>
-  </body>
 </html>
 {{ end }}
-

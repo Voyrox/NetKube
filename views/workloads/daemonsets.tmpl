@@ -1,86 +1,89 @@
 {{ define "workloads/daemonsets" }}
 <!doctype html>
-<html>
-  <head>
-    <title>NetKube</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/public/logo/logo.png" />
-    <link rel="stylesheet" href="/public/global.css" />
-    <link rel="stylesheet" href="/public/css/overview.css" />
-    <link rel="stylesheet" href="/public/css/deployments.css" />
-    <script src="/public/js/localStorage.js" defer></script>
-    <script src="/public/js/clusterApi.js" defer></script>
-    <script src="/public/js/daemonSets.js" defer></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-  </head>
-  <body>
-    {{ template "sidebar" . }}
-    <main class="main-content dashboard-page deployments-page">
-      <section class="dashboard-hero">
+<html lang="en">
+
+<head>
+  <title>NetKube</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="/public/logo/logo.png" />
+  <link rel="stylesheet" href="/public/global.css" />
+  <link rel="stylesheet" href="/public/css/overview.css" />
+  <link rel="stylesheet" href="/public/css/deployments.css" />
+  <script src="/public/js/app/core/storage/local.js" defer></script>
+  <script src="/public/js/app/core/dom/text.js" defer></script>
+  <script src="/public/js/app/core/dom/page-meta.js" defer></script>
+  <script src="/public/js/app/core/refresh/polling.js" defer></script>
+  <script src="/public/js/app/core/api/cluster.js" defer></script>
+  <script src="/public/js/app/workloads/v1/daemonsets/boot.js" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+
+<body>
+  {{ template "sidebar" . }}
+  <main class="main-content dashboard-page deployments-page">
+    <section class="dashboard-hero">
+      <div>
+        <p class="eyebrow">Workload inventory</p>
+        <div class="hero-copy">
+          <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
+          <span class="hero-user" id="daemonSetsHeroTitle">DaemonSets</span>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <div class="meta-pill">
+          <span class="meta-label">Namespace filter</span>
+          <strong id="daemonSetsNamespaceFilter">All namespaces</strong>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Refresh</span>
+          <strong id="lastRefresh">Live</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="deployments-toolbar" aria-label="DaemonSet controls">
+      <div class="deployments-toolbar__left">
+        <label class="search-control" for="daemonSetSearch">
+          <i class="fa fa-search" aria-hidden="true"></i>
+          <input id="daemonSetSearch" type="search" placeholder="Search daemonsets" />
+        </label>
+      </div>
+    </section>
+
+    <section class="deployments-table-panel">
+      <div class="deployments-table-panel__header">
         <div>
-          <p class="eyebrow">Workload inventory</p>
-          <div class="hero-copy">
-            <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
-            <span class="hero-user" id="daemonSetsHeroTitle">DaemonSets</span>
-          </div>
+          <p class="summary-kicker">DaemonSets</p>
         </div>
+        <span class="table-hint" id="daemonSetsTableCount">0 rows</span>
+      </div>
 
-        <div class="hero-meta">
-          <div class="meta-pill">
-            <span class="meta-label">Namespace filter</span>
-            <strong id="daemonSetsNamespaceFilter">All namespaces</strong>
-          </div>
-          <div class="meta-pill">
-            <span class="meta-label">Refresh</span>
-            <strong id="lastRefresh">Live</strong>
-          </div>
-        </div>
-      </section>
+      <div class="deployments-table-wrap" role="region" aria-label="DaemonSets table" tabindex="0">
+        <table class="deployments-table">
+          <thead>
+            <tr>
+              <th>Namespace</th>
+              <th>Name</th>
+              <th>Ready</th>
+              <th>Status</th>
+              <th>Desired</th>
+              <th>Current</th>
+              <th>Available</th>
+              <th>Age</th>
+            </tr>
+          </thead>
+          <tbody id="daemonSetsTableBody">
+            <tr>
+              <td colspan="8">Loading daemonsets...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
 
-      <section class="deployments-toolbar" aria-label="DaemonSet controls">
-        <div class="deployments-toolbar__left">
-          <label class="search-control" for="daemonSetSearch">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            <input id="daemonSetSearch" type="search" placeholder="Search daemonsets" />
-          </label>
-        </div>
-      </section>
-
-      <section class="deployments-table-panel">
-        <div class="deployments-table-panel__header">
-          <div>
-            <p class="summary-kicker">DaemonSets</p>
-          </div>
-          <span class="table-hint" id="daemonSetsTableCount">0 rows</span>
-        </div>
-
-        <div class="deployments-table-wrap" role="region" aria-label="DaemonSets table" tabindex="0">
-          <table class="deployments-table">
-            <thead>
-              <tr>
-                <th>Namespace</th>
-                <th>Name</th>
-                <th>Ready</th>
-                <th>Status</th>
-                <th>Desired</th>
-                <th>Current</th>
-                <th>Available</th>
-                <th>Age</th>
-              </tr>
-            </thead>
-            <tbody id="daemonSetsTableBody">
-              <tr>
-                <td colspan="8">Loading daemonsets...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </body>
 </html>
 {{ end }}

@@ -1,202 +1,202 @@
 {{ define "workloads/manage/deployment" }}
 <!doctype html>
-<html>
-  <head>
-    <title>NetKube</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/png" href="/public/logo/logo.png" />
-        <link rel="stylesheet" href="/public/global.css" />
-        <link rel="stylesheet" href="/public/css/overview.css" />
-        <link rel="stylesheet" href="/public/css/manage/pod.css" />
+<html lang="en">
 
-    
-    <script src="/public/js/localStorage.js" defer></script>
-    <script src="/public/js/yamlHighlight.js" defer></script>
-    <script src="/public/js/clusterApi.js" defer></script>
-    <script src="/public/js/deploymentManage.js" defer></script>
+<head>
+  <title>NetKube</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="/public/logo/logo.png" />
+  <link rel="stylesheet" href="/public/global.css" />
+  <link rel="stylesheet" href="/public/css/overview.css" />
+  <link rel="stylesheet" href="/public/css/manage/pod.css" />
+  <script src="/public/js/app/core/storage/local.js" defer></script>
+  <script src="/public/js/app/ui/yaml/highlight.js" defer></script>
+  <script src="/public/js/app/core/dom/text.js" defer></script>
+  <script src="/public/js/app/core/dom/page-meta.js" defer></script>
+  <script src="/public/js/app/core/refresh/polling.js" defer></script>
+  <script src="/public/js/app/core/api/cluster.js" defer></script>
+  <script src="/public/js/app/workloads/v1/deployment/boot.js" defer></script>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-  </head>
-  <body>
-    {{ template "sidebar" . }}
-    <main class="main-content pod-manage-page">
-      <section class="dashboard-hero">
-        <div>
-          <p class="eyebrow">Workload detail</p>
-          <div class="hero-copy">
-            <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
-            <span class="hero-user" id="deploymentHeroTitle">Deployment</span>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+
+<body>
+  {{ template "sidebar" . }}
+  <main class="main-content pod-manage-page">
+    <section class="dashboard-hero">
+      <div>
+        <p class="eyebrow">Workload detail</p>
+        <div class="hero-copy">
+          <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
+          <span class="hero-user" id="deploymentHeroTitle">Deployment</span>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <div class="meta-pill">
+          <span class="meta-label">Namespace</span>
+          <strong id="deploymentNamespace">-</strong>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Last refresh</span>
+          <strong id="lastRefresh">just now</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="pod-manage-shell">
+      <div class="pod-summary-card">
+        <div class="pod-summary-card__header">
+          <div>
+            <p class="summary-kicker">Deployment status</p>
+            <h2 id="deploymentName">Loading...</h2>
           </div>
+          <span class="status-chip status-chip--healthy" id="deploymentStatus">Healthy</span>
         </div>
 
-        <div class="hero-meta">
-          <div class="meta-pill">
-            <span class="meta-label">Namespace</span>
-            <strong id="deploymentNamespace">-</strong>
-          </div>
-          <div class="meta-pill">
-            <span class="meta-label">Last refresh</span>
-            <strong id="lastRefresh">just now</strong>
-          </div>
+        <div class="pod-highlight-grid">
+          <article class="pod-highlight-item">
+            <span>Ready</span>
+            <strong id="deploymentReady">-</strong>
+          </article>
+          <article class="pod-highlight-item">
+            <span>Desired</span>
+            <strong id="deploymentDesired">0</strong>
+          </article>
+          <article class="pod-highlight-item">
+            <span>Available</span>
+            <strong id="deploymentAvailable">0</strong>
+          </article>
+          <article class="pod-highlight-item">
+            <span>Age</span>
+            <strong id="deploymentAge">-</strong>
+          </article>
         </div>
-      </section>
+      </div>
 
-      <section class="pod-manage-shell">
-        <div class="pod-summary-card">
-          <div class="pod-summary-card__header">
+      <nav class="pod-tabs" aria-label="Deployment sections">
+        <button class="pod-tab pod-tab--active" type="button" data-deployment-tab="overview">Overview</button>
+        <button class="pod-tab" type="button" data-deployment-tab="events">Events</button>
+        <button class="pod-tab" type="button" data-deployment-tab="yaml">YAML</button>
+      </nav>
+
+      <section class="pod-tab-panel pod-tab-panel--active" data-deployment-panel="overview">
+        <section class="pod-panel">
+          <div class="pod-panel__header">
             <div>
-              <p class="summary-kicker">Deployment status</p>
-              <h2 id="deploymentName">Loading...</h2>
+              <p class="summary-kicker">Overview</p>
+              <h3>Deployment details</h3>
             </div>
-            <span class="status-chip status-chip--healthy" id="deploymentStatus">Healthy</span>
           </div>
 
-          <div class="pod-highlight-grid">
-            <article class="pod-highlight-item">
-              <span>Ready</span>
-              <strong id="deploymentReady">-</strong>
-            </article>
-            <article class="pod-highlight-item">
-              <span>Desired</span>
-              <strong id="deploymentDesired">0</strong>
-            </article>
-            <article class="pod-highlight-item">
-              <span>Available</span>
-              <strong id="deploymentAvailable">0</strong>
-            </article>
-            <article class="pod-highlight-item">
-              <span>Age</span>
-              <strong id="deploymentAge">-</strong>
-            </article>
+          <div class="pod-detail-list deployment-detail-list">
+            <div><span>Status</span><strong id="deploymentStatusDetail">-</strong></div>
+            <div><span>Strategy</span><strong id="deploymentStrategy">-</strong></div>
+            <div><span>Selector</span><strong id="deploymentSelector">-</strong></div>
+            <div><span>Updated</span><strong id="deploymentUpdated">0</strong></div>
+            <div><span>Available</span><strong id="deploymentAvailableDetail">0</strong></div>
+            <div><span>Unavailable</span><strong id="deploymentUnavailable">0</strong></div>
           </div>
-        </div>
 
-        <nav class="pod-tabs" aria-label="Deployment sections">
-          <button class="pod-tab pod-tab--active" type="button" data-deployment-tab="overview">Overview</button>
-          <button class="pod-tab" type="button" data-deployment-tab="events">Events</button>
-          <button class="pod-tab" type="button" data-deployment-tab="yaml">YAML</button>
-        </nav>
-
-        <section class="pod-tab-panel pod-tab-panel--active" data-deployment-panel="overview">
-          <section class="pod-panel">
-            <div class="pod-panel__header">
-              <div>
-                <p class="summary-kicker">Overview</p>
-                <h3>Deployment details</h3>
-              </div>
+          <div class="pod-panel__header pod-panel__header--spaced">
+            <div>
+              <p class="summary-kicker">Signals</p>
+              <h3>Conditions</h3>
             </div>
+          </div>
 
-            <div class="pod-detail-list deployment-detail-list">
-              <div><span>Status</span><strong id="deploymentStatusDetail">-</strong></div>
-              <div><span>Strategy</span><strong id="deploymentStrategy">-</strong></div>
-              <div><span>Selector</span><strong id="deploymentSelector">-</strong></div>
-              <div><span>Updated</span><strong id="deploymentUpdated">0</strong></div>
-              <div><span>Available</span><strong id="deploymentAvailableDetail">0</strong></div>
-              <div><span>Unavailable</span><strong id="deploymentUnavailable">0</strong></div>
-            </div>
-
-            <div class="pod-panel__header pod-panel__header--spaced">
-              <div>
-                <p class="summary-kicker">Signals</p>
-                <h3>Conditions</h3>
-              </div>
-            </div>
-
-            <div class="deployment-condition-list" id="deploymentConditionsList">
-              <p class="pod-empty">Loading conditions...</p>
-            </div>
-          </section>
-
-          <section class="pod-panel">
-            <div class="pod-panel__header">
-              <div>
-                <p class="summary-kicker">Runtime</p>
-                <h3>ReplicaSets</h3>
-              </div>
-              <span class="table-hint" id="deploymentReplicaSetsCount">0 replicasets</span>
-            </div>
-
-            <div class="deployment-runtime-list" id="deploymentReplicaSetsList">
-              <p class="pod-empty">Loading replica sets...</p>
-            </div>
-
-            <div class="pod-panel__header pod-panel__header--spaced">
-              <div>
-                <p class="summary-kicker">Runtime</p>
-                <h3>Pods</h3>
-              </div>
-              <span class="table-hint" id="deploymentPodsCount">0 pods</span>
-            </div>
-
-            <div class="deployment-runtime-list" id="deploymentPodsList">
-              <p class="pod-empty">Loading pods...</p>
-            </div>
-          </section>
-
-          <section class="pod-panel pod-panel--full">
-            <div class="deployment-metadata-grid">
-              <div>
-                <div class="pod-panel__header">
-                  <div>
-                    <p class="summary-kicker">Metadata</p>
-                    <h3>Labels</h3>
-                  </div>
-                </div>
-                <div class="deployment-tag-list" id="deploymentLabelsList">
-                  <p class="pod-empty">Loading labels...</p>
-                </div>
-              </div>
-
-              <div>
-                <div class="pod-panel__header">
-                  <div>
-                    <p class="summary-kicker">Metadata</p>
-                    <h3>Annotations</h3>
-                  </div>
-                </div>
-                <div class="deployment-annotation-list" id="deploymentAnnotationsList">
-                  <p class="pod-empty">Loading annotations...</p>
-                </div>
-              </div>
-            </div>
-          </section>
+          <div class="deployment-condition-list" id="deploymentConditionsList">
+            <p class="pod-empty">Loading conditions...</p>
+          </div>
         </section>
 
-        <section class="pod-tab-panel" data-deployment-panel="events">
-          <section class="pod-panel pod-panel--full">
-            <div class="pod-panel__header">
-              <div>
-                <p class="summary-kicker">Events</p>
-                <h3>Deployment activity</h3>
-              </div>
+        <section class="pod-panel">
+          <div class="pod-panel__header">
+            <div>
+              <p class="summary-kicker">Runtime</p>
+              <h3>ReplicaSets</h3>
             </div>
+            <span class="table-hint" id="deploymentReplicaSetsCount">0 replicasets</span>
+          </div>
 
-            <div class="pod-events-list" id="deploymentEventsList">
-              <p class="pod-empty">Loading events...</p>
+          <div class="deployment-runtime-list" id="deploymentReplicaSetsList">
+            <p class="pod-empty">Loading replica sets...</p>
+          </div>
+
+          <div class="pod-panel__header pod-panel__header--spaced">
+            <div>
+              <p class="summary-kicker">Runtime</p>
+              <h3>Pods</h3>
             </div>
-          </section>
+            <span class="table-hint" id="deploymentPodsCount">0 pods</span>
+          </div>
+
+          <div class="deployment-runtime-list" id="deploymentPodsList">
+            <p class="pod-empty">Loading pods...</p>
+          </div>
         </section>
 
-        <section class="pod-tab-panel" data-deployment-panel="yaml">
-          <section class="pod-panel pod-panel--full">
-            <div class="pod-panel__header">
-              <div>
-                <p class="summary-kicker">Manifest</p>
-                <h3>Deployment YAML</h3>
+        <section class="pod-panel pod-panel--full">
+          <div class="deployment-metadata-grid">
+            <div>
+              <div class="pod-panel__header">
+                <div>
+                  <p class="summary-kicker">Metadata</p>
+                  <h3>Labels</h3>
+                </div>
               </div>
-              <button class="pod-copy-button" type="button" id="deploymentYamlCopyButton">Copy YAML</button>
+              <div class="deployment-tag-list" id="deploymentLabelsList">
+                <p class="pod-empty">Loading labels...</p>
+              </div>
             </div>
 
-            <div class="pod-yaml-viewer" id="deploymentYamlContent">Loading YAML...</div>
-          </section>
+            <div>
+              <div class="pod-panel__header">
+                <div>
+                  <p class="summary-kicker">Metadata</p>
+                  <h3>Annotations</h3>
+                </div>
+              </div>
+              <div class="deployment-annotation-list" id="deploymentAnnotationsList">
+                <p class="pod-empty">Loading annotations...</p>
+              </div>
+            </div>
+          </div>
         </section>
       </section>
-    </main>
-  </body>
+
+      <section class="pod-tab-panel" data-deployment-panel="events">
+        <section class="pod-panel pod-panel--full">
+          <div class="pod-panel__header">
+            <div>
+              <p class="summary-kicker">Events</p>
+              <h3>Deployment activity</h3>
+            </div>
+          </div>
+
+          <div class="pod-events-list" id="deploymentEventsList">
+            <p class="pod-empty">Loading events...</p>
+          </div>
+        </section>
+      </section>
+
+      <section class="pod-tab-panel" data-deployment-panel="yaml">
+        <section class="pod-panel pod-panel--full">
+          <div class="pod-panel__header">
+            <div>
+              <p class="summary-kicker">Manifest</p>
+              <h3>Deployment YAML</h3>
+            </div>
+            <button class="pod-copy-button" type="button" id="deploymentYamlCopyButton">Copy YAML</button>
+          </div>
+
+          <div class="pod-yaml-viewer" id="deploymentYamlContent">Loading YAML...</div>
+        </section>
+      </section>
+    </section>
+  </main>
+</body>
+
 </html>
 {{ end }}
-

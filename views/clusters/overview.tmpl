@@ -1,225 +1,228 @@
 {{ define "clusters/overview" }}
 <!doctype html>
-<html>
-  <head>
+<html lang="en">
+
+<head>
     <title>NetKube</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/png" href="/public/logo/logo.png" />
-        <link rel="stylesheet" href="/public/global.css" />
-        <link rel="stylesheet" href="/public/css/overview.css" />
+    <link rel="icon" type="image/png" href="/public/logo/logo.png" />
+    <link rel="stylesheet" href="/public/global.css" />
+    <link rel="stylesheet" href="/public/css/overview.css" />
 
-    
-    <script src="/public/js/localStorage.js" defer></script>
-    <script src="/public/js/yamlHighlight.js" defer></script>
-    <script src="/public/js/clusterApi.js" defer></script>
-    <script src="/public/js/clusterOverview.js" defer></script>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-  </head>
-  <body>
-      {{ template "sidebar" . }}
-        <main class="main-content dashboard-page">
-            <section class="dashboard-hero">
+    <script src="/public/js/app/core/storage/local.js" defer></script>
+    <script src="/public/js/app/core/dom/text.js" defer></script>
+    <script src="/public/js/app/core/dom/page-meta.js" defer></script>
+    <script src="/public/js/app/core/refresh/polling.js" defer></script>
+    <script src="/public/js/app/core/api/cluster.js" defer></script>
+    <script src="/public/js/app/ui/status/chips.js" defer></script>
+    <script src="/public/js/app/ui/summary/cards.js" defer></script>
+    <script src="/public/js/app/cluster/v1/overview/boot.js" defer></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+
+<body>
+    {{ template "sidebar" . }}
+    <main class="main-content dashboard-page">
+        <section class="dashboard-hero">
+            <div>
+                <p class="eyebrow">Cluster snapshot</p>
+                <div class="hero-copy">
+                    <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
+                    <span class="hero-user" id="heroUser">admin@kube-syd</span>
+                </div>
+            </div>
+
+            <div class="hero-meta">
+                <div class="meta-pill">
+                    <span class="meta-label">Context</span>
+                    <strong id="selectedContext">demo-cluster</strong>
+                </div>
+                <div class="meta-pill">
+                    <span class="meta-label">Last refresh</span>
+                    <strong id="lastRefresh">just now</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Kubernetes resource summary">
+            <article class="summary-card summary-card--wide">
+                <div class="summary-card__header">
+                    <div class="summary-card__title">
+                        <p class="summary-kicker">Nodes</p>
+                        <h2>Nodes</h2>
+                    </div>
+                    <div class="summary-card__meta">
+                        <span class="status-chip status-chip--healthy" id="nodesStatus">Healthy</span>
+                        <div class="summary-number" id="nodesTotal">0</div>
+                    </div>
+                </div>
+                <div class="health-bar" aria-hidden="true">
+                    <span class="segment healthy" style="width: 72%"></span>
+                    <span class="segment warning" style="width: 18%"></span>
+                    <span class="segment danger" style="width: 10%"></span>
+                </div>
+                <div class="summary-breakdown">
+                    <div><span id="nodesPrimaryLabel">Ready</span><strong id="nodesPrimary">0</strong></div>
+                    <div><span id="nodesWarningLabel">Pending</span><strong id="nodesWarning">0</strong></div>
+                    <div><span id="nodesDangerLabel">Not ready</span><strong id="nodesDanger">0</strong></div>
+                    <div><span id="nodesOtherLabel">Other</span><strong id="nodesOther">0</strong></div>
+                </div>
+            </article>
+
+            <article class="summary-card">
+                <div class="summary-card__header">
+                    <div class="summary-card__title">
+                        <p class="summary-kicker">Persistent Volumes</p>
+                        <h2>Persistent Volumes</h2>
+                    </div>
+                    <div class="summary-card__meta">
+                        <span class="status-chip status-chip--healthy" id="pvStatus">Stable</span>
+                        <div class="summary-number" id="pvTotal">0</div>
+                    </div>
+                </div>
+                <div class="health-bar" aria-hidden="true">
+                    <span class="segment healthy" style="width: 84%"></span>
+                    <span class="segment warning" style="width: 12%"></span>
+                    <span class="segment danger" style="width: 4%"></span>
+                </div>
+                <div class="summary-breakdown">
+                    <div><span id="pvPrimaryLabel">Bound</span><strong id="pvPrimary">0</strong></div>
+                    <div><span id="pvWarningLabel">Pending</span><strong id="pvWarning">0</strong></div>
+                    <div><span id="pvDangerLabel">Failed</span><strong id="pvDanger">0</strong></div>
+                    <div><span id="pvOtherLabel">Other</span><strong id="pvOther">0</strong></div>
+                </div>
+            </article>
+
+            <article class="summary-card">
+                <div class="summary-card__header">
+                    <div class="summary-card__title">
+                        <p class="summary-kicker">CRDs</p>
+                        <h2>Custom Resource Definitions</h2>
+                    </div>
+                    <div class="summary-card__meta">
+                        <span class="status-chip status-chip--warning" id="crdStatus">Attention</span>
+                        <div class="summary-number" id="crdTotal">0</div>
+                    </div>
+                </div>
+                <div class="health-bar" aria-hidden="true">
+                    <span class="segment healthy" style="width: 61%"></span>
+                    <span class="segment warning" style="width: 27%"></span>
+                    <span class="segment danger" style="width: 12%"></span>
+                </div>
+                <div class="summary-breakdown">
+                    <div><span id="crdPrimaryLabel">Established</span><strong id="crdPrimary">0</strong></div>
+                    <div><span id="crdWarningLabel">Pending</span><strong id="crdWarning">0</strong></div>
+                    <div><span id="crdDangerLabel">Terminating</span><strong id="crdDanger">0</strong></div>
+                    <div><span id="crdOtherLabel">Other</span><strong id="crdOther">0</strong></div>
+                </div>
+            </article>
+
+        </section>
+
+        <section class="resource-usage-panel" aria-label="Resource usage">
+            <div class="resource-usage-panel__header">
                 <div>
-                    <p class="eyebrow">Cluster snapshot</p>
-                    <div class="hero-copy">
-                        <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
-                        <span class="hero-user" id="heroUser">admin@kube-syd</span>
-                    </div>
+                    <p class="summary-kicker">Capacity</p>
+                    <h2>Resource usage</h2>
                 </div>
+                <span class="status-chip status-chip--healthy">Live</span>
+            </div>
 
-                <div class="hero-meta">
-                    <div class="meta-pill">
-                        <span class="meta-label">Context</span>
-                        <strong id="selectedContext">demo-cluster</strong>
-                    </div>
-                    <div class="meta-pill">
-                        <span class="meta-label">Last refresh</span>
-                        <strong id="lastRefresh">just now</strong>
-                    </div>
-                </div>
-            </section>
+            <div class="resource-usage-grid">
+                <article class="resource-usage-card">
+                    <h3>Usage / Capacity</h3>
 
-            <section class="summary-grid" aria-label="Kubernetes resource summary">
-                <article class="summary-card summary-card--wide">
-                    <div class="summary-card__header">
-                        <div class="summary-card__title">
-                            <p class="summary-kicker">Nodes</p>
-                            <h2>Nodes</h2>
+                    <div class="resource-usage-row">
+                        <div class="resource-usage-label">
+                            <strong>CPU</strong>
+                            <span id="usageCpuPercent">0%</span>
                         </div>
-                        <div class="summary-card__meta">
-                            <span class="status-chip status-chip--healthy" id="nodesStatus">Healthy</span>
-                            <div class="summary-number" id="nodesTotal">0</div>
+                        <div class="resource-usage-bar" aria-hidden="true">
+                            <span class="resource-usage-fill" id="usageCpuFill" style="width: 0%"></span>
                         </div>
+                        <div class="resource-usage-value" id="usageCpuValue">0m / 0m</div>
                     </div>
-                    <div class="health-bar" aria-hidden="true">
-                        <span class="segment healthy" style="width: 72%"></span>
-                        <span class="segment warning" style="width: 18%"></span>
-                        <span class="segment danger" style="width: 10%"></span>
-                    </div>
-                    <div class="summary-breakdown">
-                        <div><span id="nodesPrimaryLabel">Ready</span><strong id="nodesPrimary">0</strong></div>
-                        <div><span id="nodesWarningLabel">Pending</span><strong id="nodesWarning">0</strong></div>
-                        <div><span id="nodesDangerLabel">Not ready</span><strong id="nodesDanger">0</strong></div>
-                        <div><span id="nodesOtherLabel">Other</span><strong id="nodesOther">0</strong></div>
+
+                    <div class="resource-usage-row">
+                        <div class="resource-usage-label">
+                            <strong>Memory</strong>
+                            <span id="usageMemoryPercent">0%</span>
+                        </div>
+                        <div class="resource-usage-bar" aria-hidden="true">
+                            <span class="resource-usage-fill" id="usageMemoryFill" style="width: 0%"></span>
+                        </div>
+                        <div class="resource-usage-value" id="usageMemoryValue">0Mi / 0Mi</div>
                     </div>
                 </article>
 
-                <article class="summary-card">
-                    <div class="summary-card__header">
-                        <div class="summary-card__title">
-                            <p class="summary-kicker">Persistent Volumes</p>
-                            <h2>Persistent Volumes</h2>
-                        </div>
-                        <div class="summary-card__meta">
-                            <span class="status-chip status-chip--healthy" id="pvStatus">Stable</span>
-                            <div class="summary-number" id="pvTotal">0</div>
-                        </div>
-                    </div>
-                    <div class="health-bar" aria-hidden="true">
-                        <span class="segment healthy" style="width: 84%"></span>
-                        <span class="segment warning" style="width: 12%"></span>
-                        <span class="segment danger" style="width: 4%"></span>
-                    </div>
-                    <div class="summary-breakdown">
-                        <div><span id="pvPrimaryLabel">Bound</span><strong id="pvPrimary">0</strong></div>
-                        <div><span id="pvWarningLabel">Pending</span><strong id="pvWarning">0</strong></div>
-                        <div><span id="pvDangerLabel">Failed</span><strong id="pvDanger">0</strong></div>
-                        <div><span id="pvOtherLabel">Other</span><strong id="pvOther">0</strong></div>
-                    </div>
-                </article>
+                <article class="resource-usage-card">
+                    <h3>Requests / Allocate</h3>
 
-                <article class="summary-card">
-                    <div class="summary-card__header">
-                        <div class="summary-card__title">
-                            <p class="summary-kicker">CRDs</p>
-                            <h2>Custom Resource Definitions</h2>
+                    <div class="resource-usage-row">
+                        <div class="resource-usage-label">
+                            <strong>Pods</strong>
+                            <span id="requestsPodsPercent">0%</span>
                         </div>
-                        <div class="summary-card__meta">
-                            <span class="status-chip status-chip--warning" id="crdStatus">Attention</span>
-                            <div class="summary-number" id="crdTotal">0</div>
+                        <div class="resource-usage-bar" aria-hidden="true">
+                            <span class="resource-usage-fill" id="requestsPodsFill" style="width: 0%"></span>
                         </div>
+                        <div class="resource-usage-value" id="requestsPodsValue">0 / 0</div>
                     </div>
-                    <div class="health-bar" aria-hidden="true">
-                        <span class="segment healthy" style="width: 61%"></span>
-                        <span class="segment warning" style="width: 27%"></span>
-                        <span class="segment danger" style="width: 12%"></span>
+
+                    <div class="resource-usage-row">
+                        <div class="resource-usage-label">
+                            <strong>CPU</strong>
+                            <span id="requestsCpuPercent">0%</span>
+                        </div>
+                        <div class="resource-usage-bar" aria-hidden="true">
+                            <span class="resource-usage-fill" id="requestsCpuFill" style="width: 0%"></span>
+                        </div>
+                        <div class="resource-usage-value" id="requestsCpuValue">0m / 0m</div>
                     </div>
-                    <div class="summary-breakdown">
-                        <div><span id="crdPrimaryLabel">Established</span><strong id="crdPrimary">0</strong></div>
-                        <div><span id="crdWarningLabel">Pending</span><strong id="crdWarning">0</strong></div>
-                        <div><span id="crdDangerLabel">Terminating</span><strong id="crdDanger">0</strong></div>
-                        <div><span id="crdOtherLabel">Other</span><strong id="crdOther">0</strong></div>
+
+                    <div class="resource-usage-row">
+                        <div class="resource-usage-label">
+                            <strong>Memory</strong>
+                            <span id="requestsMemoryPercent">0%</span>
+                        </div>
+                        <div class="resource-usage-bar" aria-hidden="true">
+                            <span class="resource-usage-fill" id="requestsMemoryFill" style="width: 0%"></span>
+                        </div>
+                        <div class="resource-usage-value" id="requestsMemoryValue">0Mi / 0Mi</div>
                     </div>
                 </article>
+            </div>
+        </section>
 
-            </section>
-
-            <section class="resource-usage-panel" aria-label="Resource usage">
-                <div class="resource-usage-panel__header">
-                    <div>
-                        <p class="summary-kicker">Capacity</p>
-                        <h2>Resource usage</h2>
-                    </div>
-                    <span class="status-chip status-chip--healthy">Live</span>
+        <section class="abnormalities-panel">
+            <div class="abnormalities-panel__header">
+                <div>
+                    <p class="summary-kicker">Exceptions</p>
+                    <h2>Abnormalities</h2>
                 </div>
 
-                <div class="resource-usage-grid">
-                    <article class="resource-usage-card">
-                        <h3>Usage / Capacity</h3>
+                <label class="filter-control" for="abnormalityFilter">
+                    <span>Filter</span>
+                    <select id="abnormalityFilter" name="abnormalityFilter">
+                        <option>All severities</option>
+                        <option>95% of limit</option>
+                        <option>Warning</option>
+                        <option>Critical</option>
+                    </select>
+                </label>
+            </div>
 
-                        <div class="resource-usage-row">
-                            <div class="resource-usage-label">
-                                <strong>CPU</strong>
-                                <span id="usageCpuPercent">0%</span>
-                            </div>
-                            <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" id="usageCpuFill" style="width: 0%"></span>
-                            </div>
-                            <div class="resource-usage-value" id="usageCpuValue">0m / 0m</div>
-                        </div>
+            <div class="abnormality-list" id="clusterWarningsList"></div>
 
-                        <div class="resource-usage-row">
-                            <div class="resource-usage-label">
-                                <strong>Memory</strong>
-                                <span id="usageMemoryPercent">0%</span>
-                            </div>
-                            <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" id="usageMemoryFill" style="width: 0%"></span>
-                            </div>
-                            <div class="resource-usage-value" id="usageMemoryValue">0Mi / 0Mi</div>
-                        </div>
-                    </article>
+            <p class="abnormalities-empty" id="clusterWarningsEmpty">
+                Loading cluster warnings...
+            </p>
+        </section>
+    </main>
+</body>
 
-                    <article class="resource-usage-card">
-                        <h3>Requests / Allocate</h3>
-
-                        <div class="resource-usage-row">
-                            <div class="resource-usage-label">
-                                <strong>Pods</strong>
-                                <span id="requestsPodsPercent">0%</span>
-                            </div>
-                            <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" id="requestsPodsFill" style="width: 0%"></span>
-                            </div>
-                            <div class="resource-usage-value" id="requestsPodsValue">0 / 0</div>
-                        </div>
-
-                        <div class="resource-usage-row">
-                            <div class="resource-usage-label">
-                                <strong>CPU</strong>
-                                <span id="requestsCpuPercent">0%</span>
-                            </div>
-                            <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" id="requestsCpuFill" style="width: 0%"></span>
-                            </div>
-                            <div class="resource-usage-value" id="requestsCpuValue">0m / 0m</div>
-                        </div>
-
-                        <div class="resource-usage-row">
-                            <div class="resource-usage-label">
-                                <strong>Memory</strong>
-                                <span id="requestsMemoryPercent">0%</span>
-                            </div>
-                            <div class="resource-usage-bar" aria-hidden="true">
-                                <span class="resource-usage-fill" id="requestsMemoryFill" style="width: 0%"></span>
-                            </div>
-                            <div class="resource-usage-value" id="requestsMemoryValue">0Mi / 0Mi</div>
-                        </div>
-                    </article>
-                </div>
-            </section>
-
-            <section class="abnormalities-panel">
-                <div class="abnormalities-panel__header">
-                    <div>
-                        <p class="summary-kicker">Exceptions</p>
-                        <h2>Abnormalities</h2>
-                    </div>
-
-                    <label class="filter-control" for="abnormalityFilter">
-                        <span>Filter</span>
-                        <select id="abnormalityFilter" name="abnormalityFilter">
-                            <option>All severities</option>
-                            <option>95% of limit</option>
-                            <option>Warning</option>
-                            <option>Critical</option>
-                        </select>
-                    </label>
-                </div>
-
-                <div class="abnormality-list" id="clusterWarningsList"></div>
-
-                <p class="abnormalities-empty" id="clusterWarningsEmpty">
-                    Loading cluster warnings...
-                </p>
-            </section>
-        </main>
-  </body>
 </html>
 {{ end }}
-

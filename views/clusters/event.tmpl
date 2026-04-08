@@ -1,115 +1,116 @@
 {{ define "clusters/event" }}
 <!doctype html>
-<html>
-  <head>
-    <title>NetKube</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/public/logo/logo.png" />
-    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-    <link rel="stylesheet" href="/public/global.css" />
-    <link rel="stylesheet" href="/public/css/overview.css" />
-    <link rel="stylesheet" href="/public/css/clusters/detail.css" />
-    <script src="/public/js/localStorage.js" defer></script>
-    <script src="/public/js/yamlHighlight.js" defer></script>
-    <script src="/public/js/clusterApi.js" defer></script>
-    <script src="/public/js/clusterEvent.js" defer></script>
-        <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-  </head>
-  <body>
-    {{ template "sidebar" . }}
-    <main class="main-content dashboard-page cluster-detail-page">
-      <section class="dashboard-hero">
+<html lang="en">
+
+<head>
+  <title>NetKube</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="/public/logo/logo.png" />
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <link rel="stylesheet" href="/public/global.css" />
+  <link rel="stylesheet" href="/public/css/overview.css" />
+  <link rel="stylesheet" href="/public/css/clusters/detail.css" />
+  <script src="/public/js/app/core/storage/local.js" defer></script>
+  <script src="/public/js/app/core/dom/text.js" defer></script>
+  <script src="/public/js/app/core/dom/page-meta.js" defer></script>
+  <script src="/public/js/app/core/refresh/polling.js" defer></script>
+  <script src="/public/js/app/core/api/cluster.js" defer></script>
+  <script src="/public/js/app/cluster/v1/event/boot.js" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+
+<body>
+  {{ template "sidebar" . }}
+  <main class="main-content dashboard-page cluster-detail-page">
+    <section class="dashboard-hero">
+      <div>
+        <p class="eyebrow">Cluster event</p>
+        <div class="hero-copy">
+          <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
+          <span class="hero-user" id="eventHeroTitle">Event</span>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <div class="meta-pill">
+          <span class="meta-label">Type</span>
+          <strong id="eventTypeMeta">-</strong>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Namespace</span>
+          <strong id="eventNamespaceMeta">-</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="cluster-summary-card">
+      <div class="cluster-panel__header">
         <div>
-          <p class="eyebrow">Cluster event</p>
-          <div class="hero-copy">
-            <img src="/public/logo/kubernetes.svg" alt="NetKube logo" class="hero-logo" />
-            <span class="hero-user" id="eventHeroTitle">Event</span>
-          </div>
+          <p class="summary-kicker">Event</p>
+          <h2 id="eventTitle">Loading event...</h2>
         </div>
+        <span class="cluster-event-badge cluster-event-badge--warning" id="eventTypeBadge">-</span>
+      </div>
 
-        <div class="hero-meta">
-          <div class="meta-pill">
-            <span class="meta-label">Type</span>
-            <strong id="eventTypeMeta">-</strong>
-          </div>
-          <div class="meta-pill">
-            <span class="meta-label">Namespace</span>
-            <strong id="eventNamespaceMeta">-</strong>
-          </div>
-        </div>
-      </section>
+      <p class="cluster-note" id="eventSummary">Loading event summary...</p>
+    </section>
 
-      <section class="cluster-summary-card">
+    <section class="cluster-detail-grid">
+      <section class="cluster-panel">
         <div class="cluster-panel__header">
           <div>
-            <p class="summary-kicker">Event</p>
-            <h2 id="eventTitle">Loading event...</h2>
+            <p class="summary-kicker">Details</p>
+            <h2>Event details</h2>
           </div>
-          <span class="cluster-event-badge cluster-event-badge--warning" id="eventTypeBadge">-</span>
         </div>
 
-        <p class="cluster-note" id="eventSummary">Loading event summary...</p>
-      </section>
-
-      <section class="cluster-detail-grid">
-        <section class="cluster-panel">
-          <div class="cluster-panel__header">
-            <div>
-              <p class="summary-kicker">Details</p>
-              <h2>Event details</h2>
-            </div>
-          </div>
-
-          <div class="cluster-kv-list">
-            <div><span>Reason</span><strong id="eventReason">-</strong></div>
-            <div><span>Involved object</span><strong id="eventObject">-</strong></div>
-            <div><span>Source</span><strong id="eventSource">-</strong></div>
-            <div><span>First seen</span><strong id="eventFirstSeen">-</strong></div>
-            <div><span>Last seen</span><strong id="eventLastSeen">-</strong></div>
-            <div><span>Count</span><strong id="eventCount">-</strong></div>
-          </div>
-        </section>
-
-        <section class="cluster-panel">
-          <div class="cluster-panel__header">
-            <div>
-              <p class="summary-kicker">Context</p>
-              <h2>Impacted resource</h2>
-            </div>
-          </div>
-
-          <div class="cluster-kv-list">
-            <div><span>Kind</span><strong id="eventKind">-</strong></div>
-            <div><span>Name</span><strong id="eventName">-</strong></div>
-            <div><span>Namespace</span><strong id="eventNamespace">-</strong></div>
-            <div><span>Node</span><strong id="eventNode">-</strong></div>
-          </div>
-
-          <div class="cluster-panel__section">
-            <p class="summary-kicker">Message</p>
-            <p class="cluster-note" id="eventMessage">Loading event message...</p>
-          </div>
-        </section>
+        <div class="cluster-kv-list">
+          <div><span>Reason</span><strong id="eventReason">-</strong></div>
+          <div><span>Involved object</span><strong id="eventObject">-</strong></div>
+          <div><span>Source</span><strong id="eventSource">-</strong></div>
+          <div><span>First seen</span><strong id="eventFirstSeen">-</strong></div>
+          <div><span>Last seen</span><strong id="eventLastSeen">-</strong></div>
+          <div><span>Count</span><strong id="eventCount">-</strong></div>
+        </div>
       </section>
 
       <section class="cluster-panel">
         <div class="cluster-panel__header">
           <div>
-            <p class="summary-kicker">Timeline</p>
-            <h2>Event history</h2>
+            <p class="summary-kicker">Context</p>
+            <h2>Impacted resource</h2>
           </div>
         </div>
 
-        <div class="cluster-timeline" id="eventTimelineList">
-          <p class="cluster-empty">Loading event history...</p>
+        <div class="cluster-kv-list">
+          <div><span>Kind</span><strong id="eventKind">-</strong></div>
+          <div><span>Name</span><strong id="eventName">-</strong></div>
+          <div><span>Namespace</span><strong id="eventNamespace">-</strong></div>
+          <div><span>Node</span><strong id="eventNode">-</strong></div>
+        </div>
+
+        <div class="cluster-panel__section">
+          <p class="summary-kicker">Message</p>
+          <p class="cluster-note" id="eventMessage">Loading event message...</p>
         </div>
       </section>
-    </main>
-  </body>
+    </section>
+
+    <section class="cluster-panel">
+      <div class="cluster-panel__header">
+        <div>
+          <p class="summary-kicker">Timeline</p>
+          <h2>Event history</h2>
+        </div>
+      </div>
+
+      <div class="cluster-timeline" id="eventTimelineList">
+        <p class="cluster-empty">Loading event history...</p>
+      </div>
+    </section>
+  </main>
+</body>
+
 </html>
 {{ end }}
-
