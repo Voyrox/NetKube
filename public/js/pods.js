@@ -1,7 +1,42 @@
 let podItems = [];
 
+const DEFAULT_POD_YAML = `apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: default
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80`;
+
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("deploymentSearch");
+
+  initCreateResourceModal({
+    triggerId: "createPodButton",
+    title: "Create Pod",
+    description: "Edit the pod YAML before confirming.",
+	    initialValue: DEFAULT_POD_YAML,
+	    confirmLabel: "Confirm",
+	    pendingLabel: "Creating...",
+	    async onConfirm(content) {
+	      const data = await fetchClusterData("/api/workloads/pods", {
+	        method: "POST",
+	        headers: {
+	          "Content-Type": "application/json"
+	        },
+	        body: JSON.stringify({ content })
+	      });
+
+	      window.setTimeout(() => window.location.reload(), 150);
+	      return {
+	        message: `Created pod ${data.name || "resource"} in ${data.namespace || "default"}.`
+	      };
+	    }
+  });
 
   searchInput?.addEventListener("input", () => {
     renderFilteredPods(searchInput.value);

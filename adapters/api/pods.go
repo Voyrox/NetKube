@@ -36,6 +36,32 @@ func PodsHandler(c *gin.Context) {
 	})
 }
 
+func CreatePodHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	var request manifestCreateRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, apiError{Error: "invalid pod manifest request"})
+		return
+	}
+
+	pod, err := CreatePod(cluster.Clientset, request.Content)
+	if err != nil {
+		c.JSON(createStatusCode(err), apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, createdResourceResponse{
+		Meta:      pageMetaFromCluster(cluster, pod.Namespace),
+		Name:      pod.Name,
+		Namespace: pod.Namespace,
+		Kind:      "Pod",
+	})
+}
+
 func PodDetailHandler(c *gin.Context) {
 	cluster, ok := resolveClusterRequest(c)
 	if !ok {
@@ -184,6 +210,38 @@ func GetPods(clientset *kubernetes.Clientset, namespace string) ([]podRow, podsS
 	})
 
 	return items, stats, nil
+}
+
+func CreatePod(clientset *kubernetes.Clientset, content string) (*corev1.Pod, error) {
+	manifest := strings.TrimSpace(content)
+	if manifest == "" {
+		return nil, errManifestRequired("pod")
+	}
+
+	var pod corev1.Pod
+	if err := yaml.Unmarshal([]byte(manifest), &pod); err != nil {
+		return nil, errManifestInvalid("pod", err)
+	}
+
+	if !strings.EqualFold(pod.Kind, "Pod") {
+		return nil, errManifestKind("Pod")
+	}
+	if pod.APIVersion != "v1" {
+		return nil, errManifestAPIVersion("v1")
+	}
+	if strings.TrimSpace(pod.Name) == "" {
+		return nil, errManifestNameRequired("pod")
+	}
+	if strings.TrimSpace(pod.Namespace) == "" {
+		pod.Namespace = "default"
+	}
+
+	created, err := clientset.CoreV1().Pods(pod.Namespace).Create(context.Background(), &pod, metav1.CreateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return created, nil
 }
 
 func GetPodDetail(clientset *kubernetes.Clientset, namespace, name string) (podDetail, error) {

@@ -103,8 +103,19 @@ function renderHighlightedYaml(value) {
     .join("");
 }
 
+function renderHighlightedYamlContent(value) {
+  return String(value || "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => {
+      return `<div class="nk-yaml-editor-line">${highlightYamlLine(line)}</div>`;
+    })
+    .join("");
+}
+
 window.NetKubeYaml = {
   renderHighlightedYaml,
+  renderHighlightedYamlContent,
   highlightYamlLine,
   highlightYamlValue,
   escapeYamlHtml

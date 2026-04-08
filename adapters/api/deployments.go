@@ -35,6 +35,32 @@ func DeploymentsHandler(c *gin.Context) {
 	})
 }
 
+func CreateDeploymentHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	var request manifestCreateRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, apiError{Error: "invalid deployment manifest request"})
+		return
+	}
+
+	deployment, err := CreateDeployment(cluster.Clientset, request.Content)
+	if err != nil {
+		c.JSON(createStatusCode(err), apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, createdResourceResponse{
+		Meta:      pageMetaFromCluster(cluster, deployment.Namespace),
+		Name:      deployment.Name,
+		Namespace: deployment.Namespace,
+		Kind:      "Deployment",
+	})
+}
+
 func DeploymentDetailHandler(c *gin.Context) {
 	cluster, ok := resolveClusterRequest(c)
 	if !ok {
@@ -151,6 +177,38 @@ func GetDeployments(clientset *kubernetes.Clientset, namespace string) ([]deploy
 	})
 
 	return items, stats, nil
+}
+
+func CreateDeployment(clientset *kubernetes.Clientset, content string) (*appsv1.Deployment, error) {
+	manifest := strings.TrimSpace(content)
+	if manifest == "" {
+		return nil, errManifestRequired("deployment")
+	}
+
+	var deployment appsv1.Deployment
+	if err := yaml.Unmarshal([]byte(manifest), &deployment); err != nil {
+		return nil, errManifestInvalid("deployment", err)
+	}
+
+	if !strings.EqualFold(deployment.Kind, "Deployment") {
+		return nil, errManifestKind("Deployment")
+	}
+	if deployment.APIVersion != "apps/v1" {
+		return nil, errManifestAPIVersion("apps/v1")
+	}
+	if strings.TrimSpace(deployment.Name) == "" {
+		return nil, errManifestNameRequired("deployment")
+	}
+	if strings.TrimSpace(deployment.Namespace) == "" {
+		deployment.Namespace = "default"
+	}
+
+	created, err := clientset.AppsV1().Deployments(deployment.Namespace).Create(context.Background(), &deployment, metav1.CreateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return created, nil
 }
 
 func GetDeploymentDetail(clientset *kubernetes.Clientset, namespace, name string) (deploymentDetail, error) {

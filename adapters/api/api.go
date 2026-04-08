@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sort"
@@ -19,6 +20,17 @@ const contextHeader = "X-NetKube-Context"
 
 type apiError struct {
 	Error string `json:"error"`
+}
+
+type manifestCreateRequest struct {
+	Content string `json:"content"`
+}
+
+type createdResourceResponse struct {
+	Meta      pageMeta `json:"meta"`
+	Name      string   `json:"name"`
+	Namespace string   `json:"namespace"`
+	Kind      string   `json:"kind"`
 }
 
 type pageMeta struct {
@@ -123,6 +135,52 @@ func formatAge(timestamp metav1.Time) string {
 	}
 
 	return formatDuration(time.Since(timestamp.Time))
+}
+
+func errManifestRequired(kind string) error {
+	return fmt.Errorf("%s manifest is required", kind)
+}
+
+func errManifestInvalid(kind string, err error) error {
+	return fmt.Errorf("invalid %s manifest: %w", kind, err)
+}
+
+func errManifestKind(expected string) error {
+	return fmt.Errorf("manifest kind must be %s", expected)
+}
+
+func errManifestAPIVersion(expected string) error {
+	return fmt.Errorf("manifest apiVersion must be %s", expected)
+}
+
+func errManifestNameRequired(kind string) error {
+	return fmt.Errorf("%s metadata.name is required", kind)
+}
+
+func createStatusCode(err error) int {
+	if err == nil {
+		return http.StatusCreated
+	}
+
+	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+		return http.StatusBadGateway
+	}
+
+	message := strings.ToLower(err.Error())
+	switch {
+	case strings.Contains(message, "already exists"):
+		return http.StatusConflict
+	case strings.Contains(message, "forbidden"):
+		return http.StatusForbidden
+	case strings.Contains(message, "unauthorized"):
+		return http.StatusUnauthorized
+	case strings.Contains(message, "not found"):
+		return http.StatusNotFound
+	case strings.Contains(message, "invalid") || strings.Contains(message, "required"):
+		return http.StatusBadRequest
+	default:
+		return http.StatusBadGateway
+	}
 }
 
 func formatDuration(duration time.Duration) string {

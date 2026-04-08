@@ -1,7 +1,53 @@
 let deploymentItems = [];
 
+const DEFAULT_DEPLOYMENT_YAML = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: default
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80`;
+
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("deploymentSearch");
+
+  initCreateResourceModal({
+    triggerId: "createDeploymentButton",
+    title: "Create Deployment",
+    description: "Edit the deployment YAML before confirming.",
+	    initialValue: DEFAULT_DEPLOYMENT_YAML,
+	    confirmLabel: "Confirm",
+	    pendingLabel: "Creating...",
+	    async onConfirm(content) {
+	      const data = await fetchClusterData("/api/workloads/deployments", {
+	        method: "POST",
+	        headers: {
+	          "Content-Type": "application/json"
+	        },
+	        body: JSON.stringify({ content })
+	      });
+
+	      window.setTimeout(() => window.location.reload(), 150);
+	      return {
+	        message: `Created deployment ${data.name || "resource"} in ${data.namespace || "default"}.`
+	      };
+	    }
+  });
 
   searchInput?.addEventListener("input", () => {
     renderFilteredDeployments(searchInput.value);

@@ -11,10 +11,11 @@
         <link rel="stylesheet" href="/public/css/deployments.css" />
 
     
-    <script src="/public/js/localStorage.js" defer></script>
-    <script src="/public/js/yamlHighlight.js" defer></script>
-    <script src="/public/js/clusterApi.js" defer></script>
-    <script src="/public/js/pods.js" defer></script>
+	    <script src="/public/js/localStorage.js" defer></script>
+	    <script src="/public/js/yamlHighlight.js" defer></script>
+	    <script src="/public/js/createResourceModal.js" defer></script>
+	    <script src="/public/js/clusterApi.js" defer></script>
+	    <script src="/public/js/pods.js" defer></script>
 
     <link
       rel="stylesheet"
@@ -47,15 +48,15 @@
 
       <section class="deployments-toolbar" aria-label="Deployment controls">
         <div class="deployments-toolbar__left">
-          <button class="action-button action-button--primary" type="button">
-            <i class="fa fa-plus" aria-hidden="true"></i>
-            <span>Create deployment</span>
-          </button>
+	          <button class="action-button action-button--primary" id="createPodButton" type="button">
+	            <i class="fa fa-plus" aria-hidden="true"></i>
+	            <span>Create pod</span>
+	          </button>
 
-          <label class="search-control" for="deploymentSearch">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            <input id="deploymentSearch" type="search" placeholder="Search pods" />
-          </label>
+	          <label class="search-control" for="deploymentSearch">
+	            <i class="fa fa-search" aria-hidden="true"></i>
+	            <input id="deploymentSearch" type="search" placeholder="Search pods" />
+	          </label>
         </div>
 
         <div class="deployments-toolbar__right">
@@ -67,7 +68,7 @@
         </div>
       </section>
 
-      <section class="deployments-table-panel">
+	      <section class="deployments-table-panel">
         <div class="deployments-table-panel__header">
           <div>
             <p class="summary-kicker">Pods</p>
@@ -98,8 +99,36 @@
             </tbody>
           </table>
         </div>
-      </section>
-    </main>
+	      </section>
+
+	      <div class="create-resource-modal-backdrop" id="createResourceBackdrop" hidden></div>
+	      <aside class="create-resource-modal" id="createResourceModal" hidden role="dialog" aria-modal="true" aria-labelledby="createResourceTitle">
+	        <div class="create-resource-modal__header">
+	          <div>
+	            <h2 id="createResourceTitle">Create Pod</h2>
+	            <p id="createResourceDescription">Edit the YAML manifest before confirming the pod.</p>
+	          </div>
+	          <button class="create-resource-modal__close" id="createResourceClose" type="button" aria-label="Close create pod modal">
+	            <i class="fa fa-times" aria-hidden="true"></i>
+	          </button>
+	        </div>
+
+	        <div class="create-resource-modal__editor">
+	          <div class="create-resource-modal__line-numbers" id="createResourceLineNumbers" aria-hidden="true"></div>
+	          <div class="create-resource-modal__viewport">
+	            <div class="create-resource-modal__highlight" id="createResourceHighlight" aria-hidden="true"></div>
+	            <textarea class="create-resource-modal__input" id="createResourceInput" spellcheck="false" wrap="off" aria-label="Pod YAML editor"></textarea>
+	          </div>
+	        </div>
+
+	        <p class="create-resource-modal__status" id="createResourceStatus" aria-live="polite"></p>
+
+	        <div class="create-resource-modal__footer">
+	          <button class="action-button" id="createResourceCancel" type="button">Cancel</button>
+	          <button class="action-button action-button--primary" id="createResourceConfirm" type="button">Confirm</button>
+	        </div>
+	      </aside>
+	    </main>
   </body>
 </html>
 {{ end }}
