@@ -311,7 +311,7 @@
 }
 
 @media (max-width: 900px) {
-	.deployments-page {
+	.main-content.dashboard-page.deployments-page {
 		height: auto;
 		overflow: visible;
 	}

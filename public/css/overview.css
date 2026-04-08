@@ -465,7 +465,7 @@
 		align-items: stretch;
 	}
 
-	.dashboard-page {
+	.main-content.dashboard-page {
 		height: auto;
 		overflow: visible;
 		min-height: 0;
