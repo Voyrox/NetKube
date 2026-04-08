@@ -18,7 +18,7 @@
         </button>
     </div>
     <nav class="sidebar-nav">
-        <div class="nav-dropdown open">
+        <div class="nav-dropdown open" data-sidebar-section="clusters" data-default-open="true">
             <button class="nav-dropdown-btn" type="button" aria-expanded="true"><i class="fa fa-sitemap" aria-hidden="true"></i><span>Clusters</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
                 <a href="/clusters/overview">Overview</a>
@@ -28,7 +28,7 @@
                 <a href="/clusters/leases">Leases</a>
             </div>
         </div>
-        <div class="nav-dropdown open">
+        <div class="nav-dropdown open" data-sidebar-section="workloads" data-default-open="true">
             <button class="nav-dropdown-btn" type="button" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i><span>Workloads</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
                 <a href="/workloads/overview">Overview</a>
@@ -41,7 +41,7 @@
 				<a href="/workloads/cronjobs">CronJobs</a>
             </div>
         </div>
-        <div class="nav-dropdown open">
+        <div class="nav-dropdown open" data-sidebar-section="networking" data-default-open="true">
             <button class="nav-dropdown-btn" type="button" aria-expanded="true"><i class="fa fa-share-alt" aria-hidden="true"></i><span>Networking</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
 				<a href="/networking/services">Services</a>
@@ -53,30 +53,30 @@
                 <a href="#">Ingress Classes</a>
             </div>
         </div>
-        <div class="nav-dropdown">
+        <div class="nav-dropdown" data-sidebar-section="configuration" data-default-open="false">
             <button class="nav-dropdown-btn" type="button" aria-expanded="false"><i class="fa fa-sliders" aria-hidden="true"></i><span>Configuration</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
 				<a href="/configuration/secrets">Secrets</a>
 				<a href="/configuration/configmaps">ConfigMaps</a>
-                <a href="#">HPA</a>
-                <a href="#">Limit Ranges</a>
-                <a href="#">Resource Quotas</a>
-                <a href="#">Pod Disruption Budgets</a>
+				<a href="/configuration/hpa">HPA</a>
+				<a href="/configuration/limitranges">Limit Ranges</a>
+				<a href="/configuration/resourcequotas">Resource Quotas</a>
+				<a href="/configuration/poddisruptionbudgets">Pod Disruption Budgets</a>
             </div>
         </div>
-        <div class="nav-dropdown">
+        <div class="nav-dropdown" data-sidebar-section="storage" data-default-open="false">
             <button class="nav-dropdown-btn" type="button" aria-expanded="false"><i class="fa fa-database" aria-hidden="true"></i><span>Storage</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
-                <a href="#">Persistent Volumes</a>
-                <a href="#">Persistent Volume Claims</a>
-                <a href="#">Volume Attachments</a>
-                <a href="#">CSI Nodes</a>
-                <a href="#">CSI Drivers</a>
-                <a href="#">Storage Classes</a>
-                <a href="#">Volume Attribute Classes</a>
+                <a href="/storage/persistentvolumes">Persistent Volumes</a>
+                <a href="/storage/persistentvolumeclaims">Persistent Volume Claims</a>
+                <a href="/storage/volumeattachments">Volume Attachments</a>
+                <a href="/storage/csinodes">CSI Nodes</a>
+                <a href="/storage/csidrivers">CSI Drivers</a>
+                <a href="/storage/storageclasses">Storage Classes</a>
+                <a href="/storage/volumeattributeclasses">Volume Attribute Classes</a>
             </div>
         </div>
-        <div class="nav-dropdown">
+        <div class="nav-dropdown" data-sidebar-section="access-control" data-default-open="false">
             <button class="nav-dropdown-btn" type="button" aria-expanded="false"><i class="fa fa-lock" aria-hidden="true"></i><span>Access Control</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
                 <a href="#">Service Accounts</a>
@@ -86,7 +86,7 @@
                 <a href="#">Cluster Role Bindings</a>
             </div>
         </div>
-        <div class="nav-dropdown">
+        <div class="nav-dropdown" data-sidebar-section="administration" data-default-open="false">
             <button class="nav-dropdown-btn" type="button" aria-expanded="false"><i class="fa fa-cogs" aria-hidden="true"></i><span>Administration</span><i class="fa fa-chevron-down nav-caret" aria-hidden="true"></i></button>
             <div class="nav-dropdown-content">
                 <a href="#">CRDs</a>
@@ -98,6 +98,7 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        var SIDEBAR_DROPDOWN_STATE_KEY = "netkube_sidebar_dropdown_state";
         var sidebar = document.getElementById("sidebar");
         var mobileNavToggle = document.getElementById("mobileNavToggle");
         var sidebarClose = document.getElementById("sidebarClose");
@@ -105,6 +106,41 @@
         var dropdowns = document.querySelectorAll(".sidebar .nav-dropdown");
         var currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
         var mobileNavMedia = window.matchMedia("(max-width: 900px)");
+
+        function readDropdownState() {
+            try {
+                return JSON.parse(localStorage.getItem(SIDEBAR_DROPDOWN_STATE_KEY) || "{}");
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function writeDropdownState(state) {
+            try {
+                localStorage.setItem(SIDEBAR_DROPDOWN_STATE_KEY, JSON.stringify(state));
+            } catch (error) {
+            }
+        }
+
+        function dropdownStateKey(dropdown, index) {
+            return dropdown.getAttribute("data-sidebar-section") || ("dropdown-" + index);
+        }
+
+        function isDropdownOpen(dropdown) {
+            return dropdown.classList.contains("open");
+        }
+
+        function setDropdownOpen(dropdown, button, isOpen) {
+            dropdown.classList.toggle("open", isOpen);
+            button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        function persistDropdownStates(dropdowns, state) {
+            dropdowns.forEach(function (dropdown, index) {
+                state[dropdownStateKey(dropdown, index)] = isDropdownOpen(dropdown);
+            });
+            writeDropdownState(state);
+        }
 
         function setSidebarOpen(isOpen) {
             if (!sidebar) {
@@ -164,21 +200,20 @@
             mobileNavMedia.addListener(handleViewportChange);
         }
 
-        dropdowns.forEach(function (dropdown) {
+        var dropdownState = readDropdownState();
+
+        dropdowns.forEach(function (dropdown, index) {
             var button = dropdown.querySelector(".nav-dropdown-btn");
             if (!button) {
                 return;
             }
 
-            // Keep aria-expanded synced with actual visibility state.
-            button.setAttribute("aria-expanded", dropdown.classList.contains("open") ? "true" : "false");
-
-            button.addEventListener("click", function () {
-                var isOpen = dropdown.classList.toggle("open");
-                button.setAttribute("aria-expanded", isOpen ? "true" : "false");
-            });
-
+            var stateKey = dropdownStateKey(dropdown, index);
+            var storedState = dropdownState[stateKey];
+            var defaultOpen = dropdown.getAttribute("data-default-open") === "true";
             var links = dropdown.querySelectorAll('.nav-dropdown-content a[href]');
+            var hasActiveLink = false;
+
             links.forEach(function (link) {
                 var href = link.getAttribute("href");
                 if (!href || href === "#") {
@@ -186,6 +221,7 @@
                 }
 
                 link.addEventListener("click", function () {
+                    persistDropdownStates(dropdowns, dropdownState);
                     if (mobileNavMedia.matches) {
                         closeSidebar();
                     }
@@ -205,13 +241,28 @@
                 });
 
                 if (isDirectMatch || isPrefixMatch) {
+                    hasActiveLink = true;
                     link.classList.add("is-active");
                     link.setAttribute("aria-current", "page");
-                    dropdown.classList.add("open");
-                    button.setAttribute("aria-expanded", "true");
                 }
             });
+
+            var initialOpen = hasActiveLink;
+            if (!initialOpen) {
+                initialOpen = typeof storedState === "boolean" ? storedState : defaultOpen;
+            }
+            setDropdownOpen(dropdown, button, initialOpen);
+            dropdownState[stateKey] = initialOpen;
+
+            button.addEventListener("click", function () {
+                var isOpen = !isDropdownOpen(dropdown);
+                setDropdownOpen(dropdown, button, isOpen);
+                dropdownState[stateKey] = isOpen;
+                writeDropdownState(dropdownState);
+            });
         });
+
+        persistDropdownStates(dropdowns, dropdownState);
 
         handleViewportChange(mobileNavMedia);
     });

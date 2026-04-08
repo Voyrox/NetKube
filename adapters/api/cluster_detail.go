@@ -9,10 +9,14 @@ import (
 	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	policyv1 "k8s.io/api/policy/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/yaml"
 )
@@ -166,6 +170,187 @@ func ClusterConfigMapsHandler(c *gin.Context) {
 		Items: items,
 		Count: len(items),
 	})
+}
+
+func ClusterHPAHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetHPAList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, hpaListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterLimitRangesHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetLimitRangeList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, limitRangeListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterResourceQuotasHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetResourceQuotaList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resourceQuotaListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterPodDisruptionBudgetsHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetPodDisruptionBudgetList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, podDisruptionBudgetListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterPersistentVolumesHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetPersistentVolumeList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, persistentVolumeListResponse{Meta: pageMetaFromCluster(cluster, ""), Items: items, Count: len(items)})
+}
+
+func ClusterPersistentVolumeClaimsHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetPersistentVolumeClaimList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, persistentVolumeClaimListResponse{Meta: pageMetaFromCluster(cluster, ""), Items: items, Count: len(items)})
+}
+
+func ClusterVolumeAttachmentsHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetVolumeAttachmentList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, volumeAttachmentListResponse{Meta: pageMetaFromCluster(cluster, ""), Items: items, Count: len(items)})
+}
+
+func ClusterCSINodesHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetCSINodeList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, csiNodeListResponse{Meta: pageMetaFromCluster(cluster, ""), Items: items, Count: len(items)})
+}
+
+func ClusterCSIDriversHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetCSIDriverList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, csiDriverListResponse{Meta: pageMetaFromCluster(cluster, ""), Items: items, Count: len(items)})
+}
+
+func ClusterStorageClassesHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetStorageClassList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, storageClassListResponse{Meta: pageMetaFromCluster(cluster, ""), Items: items, Count: len(items)})
+}
+
+func ClusterVolumeAttributeClassesHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetVolumeAttributeClassList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, volumeAttributeClassListResponse{Meta: pageMetaFromCluster(cluster, ""), Items: items, Count: len(items)})
 }
 
 func ClusterSecretDataHandler(c *gin.Context) {
@@ -548,6 +733,275 @@ func GetSecretData(clientset *kubernetes.Clientset, namespace, name string) (str
 	return string(rendered), nil
 }
 
+func GetHPAList(clientset *kubernetes.Clientset) ([]hpaListItem, error) {
+	hpas, err := clientset.AutoscalingV2().HorizontalPodAutoscalers("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]hpaListItem, 0, len(hpas.Items))
+	for _, item := range hpas.Items {
+		items = append(items, hpaListItem{
+			Namespace: item.Namespace,
+			Name:      item.Name,
+			Target:    hpaTarget(item),
+			Min:       int32PointerString(item.Spec.MinReplicas),
+			Max:       item.Spec.MaxReplicas,
+			Current:   int32String(item.Status.CurrentReplicas),
+			Age:       formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+
+	return items, nil
+}
+
+func GetLimitRangeList(clientset *kubernetes.Clientset) ([]limitRangeListItem, error) {
+	limitRanges, err := clientset.CoreV1().LimitRanges("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]limitRangeListItem, 0, len(limitRanges.Items))
+	for _, item := range limitRanges.Items {
+		items = append(items, limitRangeListItem{
+			Namespace: item.Namespace,
+			Name:      item.Name,
+			Limits:    len(item.Spec.Limits),
+			Age:       formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+
+	return items, nil
+}
+
+func GetResourceQuotaList(clientset *kubernetes.Clientset) ([]resourceQuotaListItem, error) {
+	resourceQuotas, err := clientset.CoreV1().ResourceQuotas("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]resourceQuotaListItem, 0, len(resourceQuotas.Items))
+	for _, item := range resourceQuotas.Items {
+		items = append(items, resourceQuotaListItem{
+			Namespace: item.Namespace,
+			Name:      item.Name,
+			Scopes:    len(item.Spec.Scopes),
+			Hard:      len(item.Status.Hard),
+			Used:      len(item.Status.Used),
+			Age:       formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+
+	return items, nil
+}
+
+func GetPodDisruptionBudgetList(clientset *kubernetes.Clientset) ([]podDisruptionBudgetListItem, error) {
+	pdbs, err := clientset.PolicyV1().PodDisruptionBudgets("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]podDisruptionBudgetListItem, 0, len(pdbs.Items))
+	for _, item := range pdbs.Items {
+		items = append(items, podDisruptionBudgetListItem{
+			Namespace:      item.Namespace,
+			Name:           item.Name,
+			MinAvailable:   intOrStringValue(item.Spec.MinAvailable),
+			MaxUnavailable: intOrStringValue(item.Spec.MaxUnavailable),
+			Allowed:        item.Status.DisruptionsAllowed,
+			Age:            formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+
+	return items, nil
+}
+
+func GetPersistentVolumeList(clientset *kubernetes.Clientset) ([]persistentVolumeListItem, error) {
+	volumes, err := clientset.CoreV1().PersistentVolumes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]persistentVolumeListItem, 0, len(volumes.Items))
+	for _, item := range volumes.Items {
+		items = append(items, persistentVolumeListItem{
+			Name:          item.Name,
+			Status:        fallback(string(item.Status.Phase)),
+			Capacity:      resourceListValue(item.Spec.Capacity, corev1.ResourceStorage),
+			AccessModes:   pvAccessModes(item.Spec.AccessModes),
+			ReclaimPolicy: fallback(string(item.Spec.PersistentVolumeReclaimPolicy)),
+			Claim:         pvClaim(item.Spec.ClaimRef),
+			StorageClass:  fallback(item.Spec.StorageClassName),
+			Age:           formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	return items, nil
+}
+
+func GetPersistentVolumeClaimList(clientset *kubernetes.Clientset) ([]persistentVolumeClaimListItem, error) {
+	claims, err := clientset.CoreV1().PersistentVolumeClaims("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]persistentVolumeClaimListItem, 0, len(claims.Items))
+	for _, item := range claims.Items {
+		items = append(items, persistentVolumeClaimListItem{
+			Namespace:    item.Namespace,
+			Name:         item.Name,
+			Status:       fallback(string(item.Status.Phase)),
+			Volume:       fallback(item.Spec.VolumeName),
+			Capacity:     resourceListValue(item.Status.Capacity, corev1.ResourceStorage),
+			AccessModes:  pvcAccessModes(item.Status.AccessModes, item.Spec.AccessModes),
+			StorageClass: pvcStorageClass(item.Spec.StorageClassName),
+			Age:          formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+	return items, nil
+}
+
+func GetVolumeAttachmentList(clientset *kubernetes.Clientset) ([]volumeAttachmentListItem, error) {
+	attachments, err := clientset.StorageV1().VolumeAttachments().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]volumeAttachmentListItem, 0, len(attachments.Items))
+	for _, item := range attachments.Items {
+		items = append(items, volumeAttachmentListItem{
+			Name:             item.Name,
+			Attacher:         fallback(item.Spec.Attacher),
+			Node:             fallback(item.Spec.NodeName),
+			PersistentVolume: fallback(stringPointer(item.Spec.Source.PersistentVolumeName)),
+			Attached:         yesNo(item.Status.Attached),
+			Age:              formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	return items, nil
+}
+
+func GetCSINodeList(clientset *kubernetes.Clientset) ([]csiNodeListItem, error) {
+	nodes, err := clientset.StorageV1().CSINodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]csiNodeListItem, 0, len(nodes.Items))
+	for _, item := range nodes.Items {
+		items = append(items, csiNodeListItem{
+			Name:    item.Name,
+			Drivers: len(item.Spec.Drivers),
+			Age:     formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	return items, nil
+}
+
+func GetCSIDriverList(clientset *kubernetes.Clientset) ([]csiDriverListItem, error) {
+	drivers, err := clientset.StorageV1().CSIDrivers().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]csiDriverListItem, 0, len(drivers.Items))
+	for _, item := range drivers.Items {
+		items = append(items, csiDriverListItem{
+			Name:            item.Name,
+			AttachRequired:  yesNo(boolPointer(item.Spec.AttachRequired)),
+			PodInfoOnMount:  yesNo(boolPointer(item.Spec.PodInfoOnMount)),
+			StorageCapacity: yesNo(boolPointer(item.Spec.StorageCapacity)),
+			Modes:           volumeLifecycleModes(item.Spec.VolumeLifecycleModes),
+			Age:             formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	return items, nil
+}
+
+func GetStorageClassList(clientset *kubernetes.Clientset) ([]storageClassListItem, error) {
+	classes, err := clientset.StorageV1().StorageClasses().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]storageClassListItem, 0, len(classes.Items))
+	for _, item := range classes.Items {
+		items = append(items, storageClassListItem{
+			Name:          item.Name,
+			Provisioner:   fallback(item.Provisioner),
+			ReclaimPolicy: reclaimPolicy(item.ReclaimPolicy),
+			BindingMode:   bindingMode(item.VolumeBindingMode),
+			Default:       yesNo(isDefaultStorageClass(item)),
+			Age:           formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	return items, nil
+}
+
+func GetVolumeAttributeClassList(clientset *kubernetes.Clientset) ([]volumeAttributeClassListItem, error) {
+	classes, err := clientset.StorageV1().VolumeAttributesClasses().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]volumeAttributeClassListItem, 0, len(classes.Items))
+	for _, item := range classes.Items {
+		items = append(items, volumeAttributeClassListItem{
+			Name:       item.Name,
+			DriverName: fallback(item.DriverName),
+			Parameters: len(item.Parameters),
+			Age:        formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	return items, nil
+}
+
 func GetClusterEventDetail(clientset *kubernetes.Clientset, namespace, name, reason, kind string) (clusterEventDetail, error) {
 	events, err := clientset.CoreV1().Events(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -732,6 +1186,116 @@ func secretDisplayValue(value []byte) string {
 	}
 
 	return "base64:" + base64.StdEncoding.EncodeToString(value)
+}
+
+func hpaTarget(item autoscalingv2.HorizontalPodAutoscaler) string {
+	kind := strings.TrimSpace(item.Spec.ScaleTargetRef.Kind)
+	name := strings.TrimSpace(item.Spec.ScaleTargetRef.Name)
+	if kind == "" && name == "" {
+		return "-"
+	}
+	return strings.TrimSpace(strings.Join([]string{kind, name}, "/"))
+}
+
+func int32PointerString(value *int32) string {
+	if value == nil {
+		return "-"
+	}
+	return int32String(*value)
+}
+
+func intOrStringValue(value *intstr.IntOrString) string {
+	if value == nil {
+		return "-"
+	}
+	return value.String()
+}
+
+func pdbPolicyVersion(_ policyv1.PodDisruptionBudget) string {
+	return "policy/v1"
+}
+
+func resourceListValue(values corev1.ResourceList, key corev1.ResourceName) string {
+	quantity, ok := values[key]
+	if !ok {
+		return "-"
+	}
+	return quantity.String()
+}
+
+func pvAccessModes(modes []corev1.PersistentVolumeAccessMode) string {
+	if len(modes) == 0 {
+		return "-"
+	}
+	parts := make([]string, 0, len(modes))
+	for _, mode := range modes {
+		parts = append(parts, string(mode))
+	}
+	return strings.Join(parts, ", ")
+}
+
+func pvcAccessModes(primary, fallbackModes []corev1.PersistentVolumeAccessMode) string {
+	if len(primary) > 0 {
+		return pvAccessModes(primary)
+	}
+	return pvAccessModes(fallbackModes)
+}
+
+func pvClaim(claimRef *corev1.ObjectReference) string {
+	if claimRef == nil {
+		return "-"
+	}
+	if strings.TrimSpace(claimRef.Namespace) == "" {
+		return fallback(claimRef.Name)
+	}
+	return strings.TrimSpace(claimRef.Namespace + "/" + claimRef.Name)
+}
+
+func pvcStorageClass(name *string) string {
+	if name == nil || strings.TrimSpace(*name) == "" {
+		return "-"
+	}
+	return *name
+}
+
+func stringPointer(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
+}
+
+func boolPointer(value *bool) bool {
+	return value != nil && *value
+}
+
+func volumeLifecycleModes(modes []storagev1.VolumeLifecycleMode) string {
+	if len(modes) == 0 {
+		return "-"
+	}
+	parts := make([]string, 0, len(modes))
+	for _, mode := range modes {
+		parts = append(parts, string(mode))
+	}
+	return strings.Join(parts, ", ")
+}
+
+func reclaimPolicy(value *corev1.PersistentVolumeReclaimPolicy) string {
+	if value == nil {
+		return "-"
+	}
+	return string(*value)
+}
+
+func bindingMode(value *storagev1.VolumeBindingMode) string {
+	if value == nil {
+		return "-"
+	}
+	return string(*value)
+}
+
+func isDefaultStorageClass(item storagev1.StorageClass) bool {
+	return item.Annotations["storageclass.kubernetes.io/is-default-class"] == "true" || item.Annotations["storageclass.beta.kubernetes.io/is-default-class"] == "true"
 }
 
 func servicePorts(service corev1.Service) string {

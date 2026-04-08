@@ -470,6 +470,169 @@ type configMapListResponse struct {
 	Count int                 `json:"count"`
 }
 
+type hpaListItem struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Target    string `json:"target"`
+	Min       string `json:"min"`
+	Max       int32  `json:"max"`
+	Current   string `json:"current"`
+	Age       string `json:"age"`
+}
+
+type hpaListResponse struct {
+	Meta  pageMeta      `json:"meta"`
+	Items []hpaListItem `json:"items"`
+	Count int           `json:"count"`
+}
+
+type limitRangeListItem struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Limits    int    `json:"limits"`
+	Age       string `json:"age"`
+}
+
+type limitRangeListResponse struct {
+	Meta  pageMeta             `json:"meta"`
+	Items []limitRangeListItem `json:"items"`
+	Count int                  `json:"count"`
+}
+
+type resourceQuotaListItem struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Scopes    int    `json:"scopes"`
+	Hard      int    `json:"hard"`
+	Used      int    `json:"used"`
+	Age       string `json:"age"`
+}
+
+type resourceQuotaListResponse struct {
+	Meta  pageMeta                `json:"meta"`
+	Items []resourceQuotaListItem `json:"items"`
+	Count int                     `json:"count"`
+}
+
+type podDisruptionBudgetListItem struct {
+	Namespace      string `json:"namespace"`
+	Name           string `json:"name"`
+	MinAvailable   string `json:"minAvailable"`
+	MaxUnavailable string `json:"maxUnavailable"`
+	Allowed        int32  `json:"allowed"`
+	Age            string `json:"age"`
+}
+
+type podDisruptionBudgetListResponse struct {
+	Meta  pageMeta                      `json:"meta"`
+	Items []podDisruptionBudgetListItem `json:"items"`
+	Count int                           `json:"count"`
+}
+
+type persistentVolumeListItem struct {
+	Name          string `json:"name"`
+	Status        string `json:"status"`
+	Capacity      string `json:"capacity"`
+	AccessModes   string `json:"accessModes"`
+	ReclaimPolicy string `json:"reclaimPolicy"`
+	Claim         string `json:"claim"`
+	StorageClass  string `json:"storageClass"`
+	Age           string `json:"age"`
+}
+
+type persistentVolumeListResponse struct {
+	Meta  pageMeta                   `json:"meta"`
+	Items []persistentVolumeListItem `json:"items"`
+	Count int                        `json:"count"`
+}
+
+type persistentVolumeClaimListItem struct {
+	Namespace    string `json:"namespace"`
+	Name         string `json:"name"`
+	Status       string `json:"status"`
+	Volume       string `json:"volume"`
+	Capacity     string `json:"capacity"`
+	AccessModes  string `json:"accessModes"`
+	StorageClass string `json:"storageClass"`
+	Age          string `json:"age"`
+}
+
+type persistentVolumeClaimListResponse struct {
+	Meta  pageMeta                        `json:"meta"`
+	Items []persistentVolumeClaimListItem `json:"items"`
+	Count int                             `json:"count"`
+}
+
+type volumeAttachmentListItem struct {
+	Name             string `json:"name"`
+	Attacher         string `json:"attacher"`
+	Node             string `json:"node"`
+	PersistentVolume string `json:"persistentVolume"`
+	Attached         string `json:"attached"`
+	Age              string `json:"age"`
+}
+
+type volumeAttachmentListResponse struct {
+	Meta  pageMeta                   `json:"meta"`
+	Items []volumeAttachmentListItem `json:"items"`
+	Count int                        `json:"count"`
+}
+
+type csiNodeListItem struct {
+	Name    string `json:"name"`
+	Drivers int    `json:"drivers"`
+	Age     string `json:"age"`
+}
+
+type csiNodeListResponse struct {
+	Meta  pageMeta          `json:"meta"`
+	Items []csiNodeListItem `json:"items"`
+	Count int               `json:"count"`
+}
+
+type csiDriverListItem struct {
+	Name            string `json:"name"`
+	AttachRequired  string `json:"attachRequired"`
+	PodInfoOnMount  string `json:"podInfoOnMount"`
+	StorageCapacity string `json:"storageCapacity"`
+	Modes           string `json:"modes"`
+	Age             string `json:"age"`
+}
+
+type csiDriverListResponse struct {
+	Meta  pageMeta            `json:"meta"`
+	Items []csiDriverListItem `json:"items"`
+	Count int                 `json:"count"`
+}
+
+type storageClassListItem struct {
+	Name          string `json:"name"`
+	Provisioner   string `json:"provisioner"`
+	ReclaimPolicy string `json:"reclaimPolicy"`
+	BindingMode   string `json:"bindingMode"`
+	Default       string `json:"default"`
+	Age           string `json:"age"`
+}
+
+type storageClassListResponse struct {
+	Meta  pageMeta               `json:"meta"`
+	Items []storageClassListItem `json:"items"`
+	Count int                    `json:"count"`
+}
+
+type volumeAttributeClassListItem struct {
+	Name       string `json:"name"`
+	DriverName string `json:"driverName"`
+	Parameters int    `json:"parameters"`
+	Age        string `json:"age"`
+}
+
+type volumeAttributeClassListResponse struct {
+	Meta  pageMeta                       `json:"meta"`
+	Items []volumeAttributeClassListItem `json:"items"`
+	Count int                            `json:"count"`
+}
+
 type nodeEventRow struct {
 	Title   string `json:"title"`
 	Message string `json:"message"`

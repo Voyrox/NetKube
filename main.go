@@ -68,6 +68,17 @@ func main() {
 		"views/networking/ingress.tmpl",
 		"views/configuration/secrets.tmpl",
 		"views/configuration/configmaps.tmpl",
+		"views/configuration/hpa.tmpl",
+		"views/configuration/limitranges.tmpl",
+		"views/configuration/resourcequotas.tmpl",
+		"views/configuration/poddisruptionbudgets.tmpl",
+		"views/storage/persistentvolumes.tmpl",
+		"views/storage/persistentvolumeclaims.tmpl",
+		"views/storage/volumeattachments.tmpl",
+		"views/storage/csinodes.tmpl",
+		"views/storage/csidrivers.tmpl",
+		"views/storage/storageclasses.tmpl",
+		"views/storage/volumeattributeclasses.tmpl",
 		"views/workloads/overview.tmpl",
 		"views/workloads/deployments.tmpl",
 		"views/workloads/pods.tmpl",
@@ -177,6 +188,50 @@ func main() {
 		c.HTML(http.StatusOK, "configuration/configmaps", gin.H{})
 	})
 
+	router.GET("/configuration/hpa", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "configuration/hpa", gin.H{})
+	})
+
+	router.GET("/configuration/limitranges", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "configuration/limitranges", gin.H{})
+	})
+
+	router.GET("/configuration/resourcequotas", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "configuration/resourcequotas", gin.H{})
+	})
+
+	router.GET("/configuration/poddisruptionbudgets", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "configuration/poddisruptionbudgets", gin.H{})
+	})
+
+	router.GET("/storage/persistentvolumes", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "storage/persistentvolumes", gin.H{})
+	})
+
+	router.GET("/storage/persistentvolumeclaims", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "storage/persistentvolumeclaims", gin.H{})
+	})
+
+	router.GET("/storage/volumeattachments", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "storage/volumeattachments", gin.H{})
+	})
+
+	router.GET("/storage/csinodes", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "storage/csinodes", gin.H{})
+	})
+
+	router.GET("/storage/csidrivers", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "storage/csidrivers", gin.H{})
+	})
+
+	router.GET("/storage/storageclasses", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "storage/storageclasses", gin.H{})
+	})
+
+	router.GET("/storage/volumeattributeclasses", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "storage/volumeattributeclasses", gin.H{})
+	})
+
 	router.GET("/workloads/overview", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "workloads/overview", gin.H{})
 	})
@@ -240,6 +295,17 @@ func main() {
 		api.GET("/configuration/secrets", clusterapi.ClusterSecretsHandler)
 		api.GET("/configuration/secret", clusterapi.ClusterSecretDataHandler)
 		api.GET("/configuration/configmaps", clusterapi.ClusterConfigMapsHandler)
+		api.GET("/configuration/hpa", clusterapi.ClusterHPAHandler)
+		api.GET("/configuration/limitranges", clusterapi.ClusterLimitRangesHandler)
+		api.GET("/configuration/resourcequotas", clusterapi.ClusterResourceQuotasHandler)
+		api.GET("/configuration/poddisruptionbudgets", clusterapi.ClusterPodDisruptionBudgetsHandler)
+		api.GET("/storage/persistentvolumes", clusterapi.ClusterPersistentVolumesHandler)
+		api.GET("/storage/persistentvolumeclaims", clusterapi.ClusterPersistentVolumeClaimsHandler)
+		api.GET("/storage/volumeattachments", clusterapi.ClusterVolumeAttachmentsHandler)
+		api.GET("/storage/csinodes", clusterapi.ClusterCSINodesHandler)
+		api.GET("/storage/csidrivers", clusterapi.ClusterCSIDriversHandler)
+		api.GET("/storage/storageclasses", clusterapi.ClusterStorageClassesHandler)
+		api.GET("/storage/volumeattributeclasses", clusterapi.ClusterVolumeAttributeClassesHandler)
 		api.GET("/workloads/overview", clusterapi.WorkloadsOverviewHandler)
 		api.GET("/workloads/pods", clusterapi.PodsHandler)
 		api.POST("/workloads/pods", clusterapi.CreatePodHandler)
