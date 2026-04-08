@@ -420,6 +420,56 @@ type serviceListResponse struct {
 	Count int               `json:"count"`
 }
 
+type ingressListItem struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Class     string `json:"class"`
+	Hosts     string `json:"hosts"`
+	Address   string `json:"address"`
+	Age       string `json:"age"`
+}
+
+type ingressListResponse struct {
+	Meta  pageMeta          `json:"meta"`
+	Items []ingressListItem `json:"items"`
+	Count int               `json:"count"`
+}
+
+type secretListItem struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	Data      int    `json:"data"`
+	Age       string `json:"age"`
+}
+
+type secretListResponse struct {
+	Meta  pageMeta         `json:"meta"`
+	Items []secretListItem `json:"items"`
+	Count int              `json:"count"`
+}
+
+type secretDataResponse struct {
+	Meta      pageMeta `json:"meta"`
+	Namespace string   `json:"namespace"`
+	Name      string   `json:"name"`
+	Content   string   `json:"content"`
+}
+
+type configMapListItem struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Data      int    `json:"data"`
+	Immutable string `json:"immutable"`
+	Age       string `json:"age"`
+}
+
+type configMapListResponse struct {
+	Meta  pageMeta            `json:"meta"`
+	Items []configMapListItem `json:"items"`
+	Count int                 `json:"count"`
+}
+
 type nodeEventRow struct {
 	Title   string `json:"title"`
 	Message string `json:"message"`

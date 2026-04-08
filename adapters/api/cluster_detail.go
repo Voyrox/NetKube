@@ -2,13 +2,16 @@ package api
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
 	"sort"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/yaml"
@@ -105,6 +108,90 @@ func NetworkingServicesHandler(c *gin.Context) {
 		Meta:  pageMetaFromCluster(cluster, ""),
 		Items: items,
 		Count: len(items),
+	})
+}
+
+func NetworkingIngressHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetIngressList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, ingressListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterSecretsHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetSecretList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, secretListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterConfigMapsHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	items, err := GetConfigMapList(cluster.Clientset)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, configMapListResponse{
+		Meta:  pageMetaFromCluster(cluster, ""),
+		Items: items,
+		Count: len(items),
+	})
+}
+
+func ClusterSecretDataHandler(c *gin.Context) {
+	cluster, ok := resolveClusterRequest(c)
+	if !ok {
+		return
+	}
+
+	name := strings.TrimSpace(c.Query("name"))
+	namespace := strings.TrimSpace(c.Query("namespace"))
+	if name == "" || namespace == "" {
+		c.JSON(http.StatusBadRequest, apiError{Error: "secret name and namespace are required"})
+		return
+	}
+
+	content, err := GetSecretData(cluster.Clientset, namespace, name)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, apiError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, secretDataResponse{
+		Meta:      pageMetaFromCluster(cluster, namespace),
+		Namespace: namespace,
+		Name:      name,
+		Content:   content,
 	})
 }
 
@@ -360,6 +447,107 @@ func GetServiceList(clientset *kubernetes.Clientset) ([]serviceListItem, error) 
 	return items, nil
 }
 
+func GetIngressList(clientset *kubernetes.Clientset) ([]ingressListItem, error) {
+	ingresses, err := clientset.NetworkingV1().Ingresses("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]ingressListItem, 0, len(ingresses.Items))
+	for _, item := range ingresses.Items {
+		items = append(items, ingressListItem{
+			Namespace: item.Namespace,
+			Name:      item.Name,
+			Class:     ingressClass(item),
+			Hosts:     ingressHosts(item),
+			Address:   ingressAddress(item),
+			Age:       formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+
+	return items, nil
+}
+
+func GetSecretList(clientset *kubernetes.Clientset) ([]secretListItem, error) {
+	secrets, err := clientset.CoreV1().Secrets("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]secretListItem, 0, len(secrets.Items))
+	for _, item := range secrets.Items {
+		items = append(items, secretListItem{
+			Namespace: item.Namespace,
+			Name:      item.Name,
+			Type:      fallback(string(item.Type)),
+			Data:      len(item.Data),
+			Age:       formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+
+	return items, nil
+}
+
+func GetConfigMapList(clientset *kubernetes.Clientset) ([]configMapListItem, error) {
+	configMaps, err := clientset.CoreV1().ConfigMaps("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]configMapListItem, 0, len(configMaps.Items))
+	for _, item := range configMaps.Items {
+		items = append(items, configMapListItem{
+			Namespace: item.Namespace,
+			Name:      item.Name,
+			Data:      len(item.Data) + len(item.BinaryData),
+			Immutable: yesNo(item.Immutable != nil && *item.Immutable),
+			Age:       formatAge(item.CreationTimestamp),
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Namespace == items[j].Namespace {
+			return items[i].Name < items[j].Name
+		}
+		return items[i].Namespace < items[j].Namespace
+	})
+
+	return items, nil
+}
+
+func GetSecretData(clientset *kubernetes.Clientset, namespace, name string) (string, error) {
+	secret, err := clientset.CoreV1().Secrets(namespace).Get(context.Background(), name, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+
+	content := make(map[string]string, len(secret.Data))
+	for key, value := range secret.Data {
+		content[key] = secretDisplayValue(value)
+	}
+
+	rendered, err := yaml.Marshal(content)
+	if err != nil {
+		return "", err
+	}
+
+	return string(rendered), nil
+}
+
 func GetClusterEventDetail(clientset *kubernetes.Clientset, namespace, name, reason, kind string) (clusterEventDetail, error) {
 	events, err := clientset.CoreV1().Events(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -491,6 +679,59 @@ func serviceExternalIP(service corev1.Service) string {
 		return service.Spec.ClusterIP
 	}
 	return "-"
+}
+
+func ingressClass(ingress networkingv1.Ingress) string {
+	if ingress.Spec.IngressClassName != nil && strings.TrimSpace(*ingress.Spec.IngressClassName) != "" {
+		return *ingress.Spec.IngressClassName
+	}
+	return "-"
+}
+
+func ingressHosts(ingress networkingv1.Ingress) string {
+	if len(ingress.Spec.Rules) == 0 {
+		return "-"
+	}
+
+	hosts := make([]string, 0, len(ingress.Spec.Rules))
+	for _, rule := range ingress.Spec.Rules {
+		if strings.TrimSpace(rule.Host) != "" {
+			hosts = append(hosts, rule.Host)
+		}
+	}
+	if len(hosts) == 0 {
+		return "-"
+	}
+	return strings.Join(hosts, ", ")
+}
+
+func ingressAddress(ingress networkingv1.Ingress) string {
+	if len(ingress.Status.LoadBalancer.Ingress) == 0 {
+		return "-"
+	}
+
+	addresses := make([]string, 0, len(ingress.Status.LoadBalancer.Ingress))
+	for _, entry := range ingress.Status.LoadBalancer.Ingress {
+		if strings.TrimSpace(entry.IP) != "" {
+			addresses = append(addresses, entry.IP)
+			continue
+		}
+		if strings.TrimSpace(entry.Hostname) != "" {
+			addresses = append(addresses, entry.Hostname)
+		}
+	}
+	if len(addresses) == 0 {
+		return "-"
+	}
+	return strings.Join(addresses, ", ")
+}
+
+func secretDisplayValue(value []byte) string {
+	if utf8.Valid(value) {
+		return string(value)
+	}
+
+	return "base64:" + base64.StdEncoding.EncodeToString(value)
 }
 
 func servicePorts(service corev1.Service) string {

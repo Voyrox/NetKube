@@ -65,6 +65,9 @@ func main() {
 		"views/clusters/namespaces.tmpl",
 		"views/clusters/leases.tmpl",
 		"views/networking/services.tmpl",
+		"views/networking/ingress.tmpl",
+		"views/configuration/secrets.tmpl",
+		"views/configuration/configmaps.tmpl",
 		"views/workloads/overview.tmpl",
 		"views/workloads/deployments.tmpl",
 		"views/workloads/pods.tmpl",
@@ -162,6 +165,18 @@ func main() {
 		c.HTML(http.StatusOK, "networking/services", gin.H{})
 	})
 
+	router.GET("/networking/ingress", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "networking/ingress", gin.H{})
+	})
+
+	router.GET("/configuration/secrets", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "configuration/secrets", gin.H{})
+	})
+
+	router.GET("/configuration/configmaps", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "configuration/configmaps", gin.H{})
+	})
+
 	router.GET("/workloads/overview", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "workloads/overview", gin.H{})
 	})
@@ -221,6 +236,10 @@ func main() {
 		api.GET("/cluster/namespace/yaml", clusterapi.ClusterNamespaceYAMLHandler)
 		api.GET("/cluster/lease/yaml", clusterapi.ClusterLeaseYAMLHandler)
 		api.GET("/networking/services", clusterapi.NetworkingServicesHandler)
+		api.GET("/networking/ingress", clusterapi.NetworkingIngressHandler)
+		api.GET("/configuration/secrets", clusterapi.ClusterSecretsHandler)
+		api.GET("/configuration/secret", clusterapi.ClusterSecretDataHandler)
+		api.GET("/configuration/configmaps", clusterapi.ClusterConfigMapsHandler)
 		api.GET("/workloads/overview", clusterapi.WorkloadsOverviewHandler)
 		api.GET("/workloads/pods", clusterapi.PodsHandler)
 		api.POST("/workloads/pods", clusterapi.CreatePodHandler)
