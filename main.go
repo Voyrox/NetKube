@@ -70,6 +70,9 @@ func main() {
 		"views/workloads/pods.tmpl",
 		"views/workloads/replicasets.tmpl",
 		"views/workloads/daemonsets.tmpl",
+		"views/workloads/statefulsets.tmpl",
+		"views/workloads/jobs.tmpl",
+		"views/workloads/cronjobs.tmpl",
 		"views/workloads/manage/deployment.tmpl",
 		"views/workloads/manage/pod.tmpl",
 	)
@@ -179,6 +182,18 @@ func main() {
 		c.HTML(http.StatusOK, "workloads/daemonsets", gin.H{})
 	})
 
+	router.GET("/workloads/statefulsets", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "workloads/statefulsets", gin.H{})
+	})
+
+	router.GET("/workloads/jobs", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "workloads/jobs", gin.H{})
+	})
+
+	router.GET("/workloads/cronjobs", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "workloads/cronjobs", gin.H{})
+	})
+
 	router.GET("/workloads/manage/pod", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "workloads/manage/pod", gin.H{})
 	})
@@ -210,6 +225,9 @@ func main() {
 		api.GET("/workloads/pods", clusterapi.PodsHandler)
 		api.GET("/workloads/replicasets", clusterapi.ReplicaSetsHandler)
 		api.GET("/workloads/daemonsets", clusterapi.DaemonSetsHandler)
+		api.GET("/workloads/statefulsets", clusterapi.StatefulSetsHandler)
+		api.GET("/workloads/jobs", clusterapi.JobsHandler)
+		api.GET("/workloads/cronjobs", clusterapi.CronJobsHandler)
 		api.GET("/workloads/pod", clusterapi.PodDetailHandler)
 		api.GET("/workloads/pod/logs", clusterapi.PodLogsHandler)
 		api.GET("/workloads/pod/events", clusterapi.PodEventsHandler)

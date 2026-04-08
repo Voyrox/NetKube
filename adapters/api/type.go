@@ -219,6 +219,80 @@ type daemonSetsStats struct {
 	Total   int `json:"total"`
 }
 
+type statefulSetRow struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
+	Ready     string `json:"ready"`
+	Status    string `json:"status"`
+	Desired   int32  `json:"desired"`
+	Current   int32  `json:"current"`
+	Updated   int32  `json:"updated"`
+	Age       string `json:"age"`
+}
+
+type statefulSetsResponse struct {
+	Meta  pageMeta          `json:"meta"`
+	Items []statefulSetRow  `json:"items"`
+	Count int               `json:"count"`
+	Stats statefulSetsStats `json:"stats"`
+}
+
+type statefulSetsStats struct {
+	Healthy int `json:"healthy"`
+	Warning int `json:"warning"`
+	Pending int `json:"pending"`
+	Total   int `json:"total"`
+}
+
+type jobRow struct {
+	Namespace   string `json:"namespace"`
+	Name        string `json:"name"`
+	Status      string `json:"status"`
+	Completions string `json:"completions"`
+	Active      int32  `json:"active"`
+	Duration    string `json:"duration"`
+	Age         string `json:"age"`
+}
+
+type jobsResponse struct {
+	Meta  pageMeta  `json:"meta"`
+	Items []jobRow  `json:"items"`
+	Count int       `json:"count"`
+	Stats jobsStats `json:"stats"`
+}
+
+type jobsStats struct {
+	Succeeded int `json:"succeeded"`
+	Active    int `json:"active"`
+	Failed    int `json:"failed"`
+	Total     int `json:"total"`
+}
+
+type cronJobRow struct {
+	Namespace    string `json:"namespace"`
+	Name         string `json:"name"`
+	Schedule     string `json:"schedule"`
+	Status       string `json:"status"`
+	Suspend      string `json:"suspend"`
+	Active       int    `json:"active"`
+	LastSchedule string `json:"lastSchedule"`
+	Age          string `json:"age"`
+}
+
+type cronJobsResponse struct {
+	Meta  pageMeta      `json:"meta"`
+	Items []cronJobRow  `json:"items"`
+	Count int           `json:"count"`
+	Stats cronJobsStats `json:"stats"`
+}
+
+type cronJobsStats struct {
+	Scheduled int `json:"scheduled"`
+	Suspended int `json:"suspended"`
+	Active    int `json:"active"`
+	Total     int `json:"total"`
+}
+
 type deploymentConditionRow struct {
 	Type    string `json:"type"`
 	Status  string `json:"status"`
