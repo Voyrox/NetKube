@@ -57,6 +57,10 @@ func Create(clientset *kubernetes.Clientset, content string) (*appsv1.Deployment
 	return clientset.AppsV1().Deployments(deployment.Namespace).Create(context.Background(), deployment, metav1.CreateOptions{})
 }
 
+func Delete(clientset *kubernetes.Clientset, namespace, name string) error {
+	return clientset.AppsV1().Deployments(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
+}
+
 func DetailFor(clientset *kubernetes.Clientset, namespace, name string) (Detail, error) {
 	deployment, err := clientset.AppsV1().Deployments(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {

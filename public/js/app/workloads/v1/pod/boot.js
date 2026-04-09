@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initializePodTabs();
   bindCopyYAML();
+  bindDeletePod(namespace, name);
 
   if (!namespace || !name) {
     renderPodError("Missing pod name or namespace in the URL.");
@@ -350,6 +351,36 @@ function bindCopyYAML() {
       window.setTimeout(() => {
         button.textContent = "Copy YAML";
       }, 1500);
+    }
+  });
+}
+
+function bindDeletePod(namespace, name) {
+  const button = document.getElementById("deletePodButton");
+  if (!button) return;
+
+  button.addEventListener("click", async () => {
+    if (!namespace || !name) return;
+
+    const confirmed = window.confirm(
+      `Delete pod ${name} from namespace ${namespace}?`,
+    );
+    if (!confirmed) return;
+
+    const defaultLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = "Deleting...";
+
+    try {
+      await fetchClusterData(
+        `/api/workloads/pod?${new URLSearchParams({ namespace, name }).toString()}`,
+        { method: "DELETE" },
+      );
+      window.location.href = "/workloads/pods";
+    } catch (error) {
+      window.alert(error.message || "Failed to delete pod");
+      button.disabled = false;
+      button.textContent = defaultLabel;
     }
   });
 }

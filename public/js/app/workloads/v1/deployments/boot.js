@@ -98,7 +98,7 @@ function renderDeploymentsTable(items, message) {
 
   body.innerHTML = "";
   if (!items.length) {
-    body.innerHTML = `<tr><td colspan="8">${escapeHtml(message || "No deployments found")}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9">${escapeHtml(message || "No deployments found")}</td></tr>`;
     return;
   }
 
@@ -115,16 +115,60 @@ function renderDeploymentsTable(items, message) {
       <td>${escapeHtml(String(item.updated))}</td>
       <td>${escapeHtml(String(item.available))}</td>
       <td>${escapeHtml(item.age)}</td>
+      <td class="deployments-table__actions">
+        <button class="action-button action-button--danger action-button--compact" type="button" data-deployment-delete>
+          Delete
+        </button>
+      </td>
     `;
     row.addEventListener("click", () => openDeployment(item));
     row.addEventListener("keydown", (event) => {
+      if (event.target instanceof HTMLElement && event.target.closest("button")) {
+        return;
+      }
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         openDeployment(item);
       }
     });
+    const deleteButton = row.querySelector("[data-deployment-delete]");
+    deleteButton?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      void deleteDeploymentFromTable(item, deleteButton);
+    });
     body.appendChild(row);
   });
+}
+
+async function deleteDeploymentFromTable(item, button) {
+  const confirmed = window.confirm(
+    `Delete deployment ${item.name || "resource"} from namespace ${item.namespace || "default"}?`,
+  );
+  if (!confirmed) return;
+
+  const defaultLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = "Deleting...";
+
+  try {
+    await fetchClusterData(
+      `/api/workloads/deployment?${new URLSearchParams({ namespace: item.namespace || "", name: item.name || "" }).toString()}`,
+      { method: "DELETE" },
+    );
+    deploymentItems = deploymentItems.filter(
+      (candidate) =>
+        !(
+          candidate.namespace === item.namespace && candidate.name === item.name
+        ),
+    );
+    renderFilteredDeployments(
+      document.getElementById("deploymentSearch")?.value || "",
+    );
+  } catch (error) {
+    window.alert(error.message || "Failed to delete deployment");
+    button.disabled = false;
+    button.textContent = defaultLabel;
+  }
 }
 
 function openDeployment(item) {

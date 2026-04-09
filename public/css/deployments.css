@@ -42,6 +42,22 @@
 	color: #0f1712;
 }
 
+.action-button--danger {
+	border-color: rgba(220, 38, 38, 0.45);
+	background: rgba(220, 38, 38, 0.12);
+	color: #fecaca;
+}
+
+.action-button--compact {
+	padding: 6px 10px;
+	font-size: 0.76rem;
+}
+
+.action-button:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
 .search-control {
 	display: inline-flex;
 	align-items: center;
@@ -163,6 +179,11 @@
 .deployments-table__row-link:focus-visible {
 	outline: 2px solid var(--blue);
 	outline-offset: -2px;
+}
+
+.deployments-table__actions {
+	width: 1%;
+	white-space: nowrap;
 }
 
 .resource-drawer {

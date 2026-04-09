@@ -71,6 +71,10 @@ func Create(clientset *kubernetes.Clientset, content string) (*corev1.Pod, error
 	return clientset.CoreV1().Pods(pod.Namespace).Create(context.Background(), pod, metav1.CreateOptions{})
 }
 
+func Delete(clientset *kubernetes.Clientset, namespace, name string) error {
+	return clientset.CoreV1().Pods(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
+}
+
 func DetailFor(clientset *kubernetes.Clientset, namespace, name string) (Detail, error) {
 	pod, err := clientset.CoreV1().Pods(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {

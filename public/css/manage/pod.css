@@ -437,7 +437,8 @@
 }
 
 .pod-select-wrap select,
-.pod-copy-button {
+.pod-copy-button,
+.pod-action-button {
   border: 1px solid var(--panel-border);
   border-radius: 10px;
   background: var(--background-color);
@@ -447,23 +448,45 @@
   font-size: 0.8rem;
 }
 
-.pod-copy-button {
+.pod-copy-button,
+.pod-action-button {
   cursor: pointer;
   transition:
     border-color 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .pod-copy-button:hover,
 .pod-select-wrap select:focus,
 .pod-tab:hover,
-.pod-copy-button:focus {
+.pod-copy-button:focus,
+.pod-action-button:hover,
+.pod-action-button:focus {
   border-color: var(--blue);
 }
 
 .pod-copy-button:hover,
 .pod-copy-button:focus {
   background: rgba(50, 108, 229, 0.12);
+}
+
+.pod-action-button--danger {
+  border-color: rgba(220, 38, 38, 0.45);
+  background: rgba(220, 38, 38, 0.12);
+  color: #fecaca;
+}
+
+.pod-action-button--danger:hover,
+.pod-action-button--danger:focus {
+  border-color: rgba(239, 68, 68, 0.7);
+  background: rgba(220, 38, 38, 0.18);
+}
+
+.pod-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .pod-code-block {

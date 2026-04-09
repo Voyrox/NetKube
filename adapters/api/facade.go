@@ -60,12 +60,14 @@ var (
 	WorkloadsOverviewHandler             = workloadsoverview.Handler
 	PodsHandler                          = podapi.ListHandler
 	CreatePodHandler                     = podapi.CreateHandler
+	DeletePodHandler                     = podapi.DeleteHandler
 	PodDetailHandler                     = podapi.DetailHandler
 	PodLogsHandler                       = podapi.LogsHandler
 	PodEventsHandler                     = podapi.EventsHandler
 	PodYAMLHandler                       = podapi.YAMLHandler
 	DeploymentsHandler                   = deploymentapi.ListHandler
 	CreateDeploymentHandler              = deploymentapi.CreateHandler
+	DeleteDeploymentHandler              = deploymentapi.DeleteHandler
 	DeploymentDetailHandler              = deploymentapi.DetailHandler
 	DeploymentEventsHandler              = deploymentapi.EventsHandler
 	DeploymentYAMLHandler                = deploymentapi.YAMLHandler

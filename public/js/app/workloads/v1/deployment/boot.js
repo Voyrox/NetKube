@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeDeploymentTabs();
   bindCopyYAML("deploymentYamlCopyButton", "deploymentYamlContent");
+  bindDeleteDeployment(namespace, name);
 
   if (!namespace || !name) {
     renderDeploymentError("Missing deployment name or namespace in the URL.");
@@ -289,6 +290,37 @@ function bindCopyYAML(buttonId, contentId) {
     }
   });
 }
+
+function bindDeleteDeployment(namespace, name) {
+  const button = document.getElementById("deleteDeploymentButton");
+  if (!button) return;
+
+  button.addEventListener("click", async () => {
+    if (!namespace || !name) return;
+
+    const confirmed = window.confirm(
+      `Delete deployment ${name} from namespace ${namespace}?`,
+    );
+    if (!confirmed) return;
+
+    const defaultLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = "Deleting...";
+
+    try {
+      await fetchClusterData(
+        `/api/workloads/deployment?${new URLSearchParams({ namespace, name }).toString()}`,
+        { method: "DELETE" },
+      );
+      window.location.href = "/workloads/deployments";
+    } catch (error) {
+      window.alert(error.message || "Failed to delete deployment");
+      button.disabled = false;
+      button.textContent = defaultLabel;
+    }
+  });
+}
+
 function renderYAMLContent(id, value) {
   const element = document.getElementById(id);
   if (!element) return;

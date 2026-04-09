@@ -26,6 +26,13 @@ type CreatedResourceResponse struct {
 	Kind      string   `json:"kind"`
 }
 
+type DeletedResourceResponse struct {
+	Meta      PageMeta `json:"meta"`
+	Name      string   `json:"name"`
+	Namespace string   `json:"namespace"`
+	Kind      string   `json:"kind"`
+}
+
 type PageMeta struct {
 	ContextName string `json:"contextName"`
 	ClusterName string `json:"clusterName"`
@@ -73,8 +80,16 @@ func ErrManifestNameRequired(kind string) error {
 }
 
 func CreateStatusCode(err error) int {
+	return RequestStatusCode(err, http.StatusCreated)
+}
+
+func DeleteStatusCode(err error) int {
+	return RequestStatusCode(err, http.StatusOK)
+}
+
+func RequestStatusCode(err error, successCode int) int {
 	if err == nil {
-		return http.StatusCreated
+		return successCode
 	}
 
 	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {

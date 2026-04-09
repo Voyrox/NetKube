@@ -85,7 +85,7 @@ function renderPodsTable(items, message) {
 
   body.innerHTML = "";
   if (!items.length) {
-    body.innerHTML = `<tr><td colspan="10">${escapeHtml(message || "No pods found")}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11">${escapeHtml(message || "No pods found")}</td></tr>`;
     return;
   }
 
@@ -104,16 +104,60 @@ function renderPodsTable(items, message) {
       <td>${escapeHtml(item.node)}</td>
       <td>${escapeHtml(item.podIP)}</td>
       <td>${escapeHtml(item.age)}</td>
+      <td class="deployments-table__actions">
+        <button class="action-button action-button--danger action-button--compact" type="button" data-pod-delete>
+          Delete
+        </button>
+      </td>
     `;
     row.addEventListener("click", () => openPod(item));
     row.addEventListener("keydown", (event) => {
+      if (event.target instanceof HTMLElement && event.target.closest("button")) {
+        return;
+      }
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         openPod(item);
       }
     });
+    const deleteButton = row.querySelector("[data-pod-delete]");
+    deleteButton?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      void deletePodFromTable(item, deleteButton);
+    });
     body.appendChild(row);
   });
+}
+
+async function deletePodFromTable(item, button) {
+  const confirmed = window.confirm(
+    `Delete pod ${item.name || "resource"} from namespace ${item.namespace || "default"}?`,
+  );
+  if (!confirmed) return;
+
+  const defaultLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = "Deleting...";
+
+  try {
+    await fetchClusterData(
+      `/api/workloads/pod?${new URLSearchParams({ namespace: item.namespace || "", name: item.name || "" }).toString()}`,
+      { method: "DELETE" },
+    );
+    podItems = podItems.filter(
+      (candidate) =>
+        !(
+          candidate.namespace === item.namespace && candidate.name === item.name
+        ),
+    );
+    renderFilteredPods(
+      document.getElementById("deploymentSearch")?.value || "",
+    );
+  } catch (error) {
+    window.alert(error.message || "Failed to delete pod");
+    button.disabled = false;
+    button.textContent = defaultLabel;
+  }
 }
 
 function openPod(item) {
