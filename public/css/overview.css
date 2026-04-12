@@ -3,8 +3,8 @@
 	flex-direction: column;
 	gap: 18px;
 	min-height: calc(100vh - 40px);
-	height: calc(100vh - 40px);
-	overflow: hidden;
+	height: auto;
+	overflow: visible;
 }
 
 .dashboard-hero {
